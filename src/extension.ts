@@ -4,7 +4,7 @@ import * as net from "net"
 import * as vscode from 'vscode';
 import { Trace } from 'vscode-jsonrpc';
 import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens } from 'vscode';
-import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers } from 'vscode-languageclient/node';
+import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams } from 'vscode-languageclient/node';
 
 let lc: LanguageClient;
 
@@ -85,7 +85,7 @@ export function activate(context: ExtensionContext) {
         })
     );
 
-    context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider(['ch'], new DocumentSemanticTokensProvider(), legend));
+    context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider({ language : "chemical" }, new DocumentSemanticTokensProvider(), legend));
 
     lc.setTrace(Trace.Verbose);
     lc.start().then(() => {
@@ -116,10 +116,16 @@ class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
 
     async provideDocumentSemanticTokens(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<vscode.SemanticTokens> {
         console.log("[Request] textDocument/semanticTokens/full");
-        // @ts-ignore
-        return lc.sendRequest("textDocument/semanticTokens/full", { textDocument : document }).catch(e => {
+
+        const params : SemanticTokensParams = {
+            textDocument : {
+                uri : document.uri.toString()
+            }
+        }
+              // @ts-ignore
+        return lc.sendRequest("textDocument/semanticTokens/full", params).catch(e => {
             console.error("Error sending semantic tokens request", e)
-            return
+            return Promise.reject(e)
         })
     }
     
