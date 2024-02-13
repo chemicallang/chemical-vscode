@@ -122,7 +122,7 @@ class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
                 uri : document.uri.toString()
             }
         }
-              // @ts-ignore
+        // @ts-ignore
         return lc.sendRequest("textDocument/semanticTokens/full", params).catch(e => {
             console.error("Error sending semantic tokens request", e)
             return Promise.reject(e)
@@ -140,27 +140,27 @@ class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
            // Not implemented Yet
     // }
 
-    private _encodeTokenType(tokenType: string): number {
-        if (tokenTypes.has(tokenType)) {
-            return tokenTypes.get(tokenType)!;
-        } else if (tokenType === 'notInLegend') {
-            return tokenTypes.size + 2;
-        }
-        return 0;
-    }
+    // private _encodeTokenType(tokenType: string): number {
+    //     if (tokenTypes.has(tokenType)) {
+    //         return tokenTypes.get(tokenType)!;
+    //     } else if (tokenType === 'notInLegend') {
+    //         return tokenTypes.size + 2;
+    //     }
+    //     return 0;
+    // }
 
-    private _encodeTokenModifiers(strTokenModifiers: string[]): number {
-        let result = 0;
-        for (let i = 0; i < strTokenModifiers.length; i++) {
-            const tokenModifier = strTokenModifiers[i];
-            if (tokenModifiers.has(tokenModifier)) {
-                result = result | (1 << tokenModifiers.get(tokenModifier)!);
-            } else if (tokenModifier === 'notInLegend') {
-                result = result | (1 << tokenModifiers.size + 2);
-            }
-        }
-        return result;
-    }
+    // private _encodeTokenModifiers(strTokenModifiers: string[]): number {
+    //     let result = 0;
+    //     for (let i = 0; i < strTokenModifiers.length; i++) {
+    //         const tokenModifier = strTokenModifiers[i];
+    //         if (tokenModifiers.has(tokenModifier)) {
+    //             result = result | (1 << tokenModifiers.get(tokenModifier)!);
+    //         } else if (tokenModifier === 'notInLegend') {
+    //             result = result | (1 << tokenModifiers.size + 2);
+    //         }
+    //     }
+    //     return result;
+    // }
 
     // private async _convertParsedTokens(allTokens : IParsedToken[]) : Promise<vscode.SemanticTokens> {
     //     const builder = new vscode.SemanticTokensBuilder();
