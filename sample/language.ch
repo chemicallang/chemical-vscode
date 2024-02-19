@@ -1,1 +1,1 @@
-#var x = 5;
+#var x : int = 5;

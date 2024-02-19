@@ -3,8 +3,8 @@
 import * as net from "net"
 import * as vscode from 'vscode';
 import { Trace } from 'vscode-jsonrpc';
-import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens } from 'vscode';
-import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams } from 'vscode-languageclient/node';
+import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens, TextDocumentChangeEvent } from 'vscode';
+import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams } from 'vscode-languageclient/node';
 
 let lc: LanguageClient;
 
@@ -81,7 +81,37 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         workspace.onDidOpenTextDocument((document: TextDocument) => {
-            console.log("[Request] onDidOpenTextDocument Not Being Sent To LSP Server")
+            console.log("[Request] textDocument/didOpen");
+            lc.sendRequest("textDocument/didOpen", {
+                textDocument : {
+                    uri: document.uri.toString(),
+                    languageId : document.languageId,
+                    version: document.version,
+                    text : document.getText()
+                },
+                // @ts-ignore since readonly property won't be modified, as its just being serialized
+                contentChanges : event.contentChanges
+            } satisfies DidOpenTextDocumentParams).catch(e => {
+                console.error("Error sending did change text document params")
+                return Promise.reject(e)
+            })
+        })
+    );
+
+    context.subscriptions.push(
+        workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
+            console.log("[Request] textDocument/didChange");
+            lc.sendRequest("textDocument/didChange", {
+                textDocument : {
+                    version: event.document.version,
+                    uri: event.document.uri.toString()
+                },
+                // @ts-ignore since readonly property won't be modified, as its just being serialized
+                contentChanges : event.contentChanges
+            } satisfies DidChangeTextDocumentParams).catch(e => {
+                console.error("Error sending did change text document params")
+                return Promise.reject(e)
+            })
         })
     );
 
@@ -116,14 +146,12 @@ class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
 
     async provideDocumentSemanticTokens(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<vscode.SemanticTokens> {
         console.log("[Request] textDocument/semanticTokens/full");
-
-        const params : SemanticTokensParams = {
+        // @ts-ignore
+        return lc.sendRequest("textDocument/semanticTokens/full", {
             textDocument : {
                 uri : document.uri.toString()
             }
-        }
-        // @ts-ignore
-        return lc.sendRequest("textDocument/semanticTokens/full", params).catch(e => {
+        } satisfies SemanticTokensParams).catch(e => {
             console.error("Error sending semantic tokens request", e)
             return Promise.reject(e)
         })
