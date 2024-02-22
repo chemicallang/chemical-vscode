@@ -4,7 +4,7 @@ import * as net from "net"
 import * as vscode from 'vscode';
 import { Trace } from 'vscode-jsonrpc';
 import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens, TextDocumentChangeEvent } from 'vscode';
-import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams } from 'vscode-languageclient/node';
+import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams, DidCloseTextDocumentParams } from 'vscode-languageclient/node';
 
 let lc: LanguageClient;
 
@@ -99,6 +99,23 @@ export function activate(context: ExtensionContext) {
     );
 
     context.subscriptions.push(
+        workspace.onDidOpenTextDocument((document : TextDocument) => {
+            console.log("[Request] textDocument/didOpen")
+            lc.sendRequest("textDocument/didOpen", {
+                textDocument : {
+                    uri : document.uri.toString(),
+                    version : document.version,
+                    languageId : document.languageId,
+                    text : document.getText()
+                }
+            } satisfies DidOpenTextDocumentParams).catch(e => {
+                console.error("Error sending did open text document params")
+                return Promise.reject(e)
+            })
+        })
+    )
+
+    context.subscriptions.push(
         workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
             console.log("[Request] textDocument/didChange");
             lc.sendRequest("textDocument/didChange", {
@@ -114,6 +131,20 @@ export function activate(context: ExtensionContext) {
             })
         })
     );
+
+    context.subscriptions.push(
+        workspace.onDidCloseTextDocument((document : TextDocument) => {
+            console.log("[Request] textDocument/close")
+            lc.sendRequest("textDocument/didClose", {
+                textDocument : {
+                    uri : document.uri.toString()
+                }
+            } satisfies DidCloseTextDocumentParams).catch(e => {
+                console.error("Error sending did close text document params")
+                return Promise.reject(e)
+            })
+        })
+    )
 
     context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider({ language : "chemical" }, new DocumentSemanticTokensProvider(), legend));
 
