@@ -82,7 +82,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         workspace.onDidOpenTextDocument((document : TextDocument) => {
             console.log("[Request] textDocument/didOpen")
-            lc.sendRequest("textDocument/didOpen", {
+            lc.sendNotification("textDocument/didOpen", {
                 textDocument : {
                     uri : document.uri.toString(),
                     version : document.version,
@@ -99,7 +99,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
             console.log("[Request] textDocument/didChange");
-            lc.sendRequest("textDocument/didChange", {
+            lc.sendNotification("textDocument/didChange", {
                 textDocument : {
                     version: event.document.version,
                     uri: event.document.uri.toString()
@@ -116,7 +116,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         workspace.onDidCloseTextDocument((document : TextDocument) => {
             console.log("[Request] textDocument/didClose")
-            lc.sendRequest("textDocument/didClose", {
+            lc.sendNotification("textDocument/didClose", {
                 textDocument : {
                     uri : document.uri.toString()
                 }
