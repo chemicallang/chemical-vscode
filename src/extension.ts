@@ -98,7 +98,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
-            console.log("[Request] textDocument/didChange");
+            console.log("[Request] textDocument/didChange", "changes:" + event.contentChanges.length);
             lc.sendNotification("textDocument/didChange", {
                 textDocument : {
                     version: event.document.version,
