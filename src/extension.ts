@@ -80,25 +80,6 @@ export function activate(context: ExtensionContext) {
     lc = new LanguageClient('Chemical Server', serverOptions, clientOptions);
 
     context.subscriptions.push(
-        workspace.onDidOpenTextDocument((document: TextDocument) => {
-            console.log("[Request] textDocument/didOpen");
-            lc.sendRequest("textDocument/didOpen", {
-                textDocument : {
-                    uri: document.uri.toString(),
-                    languageId : document.languageId,
-                    version: document.version,
-                    text : document.getText()
-                },
-                // @ts-ignore since readonly property won't be modified, as its just being serialized
-                contentChanges : event.contentChanges
-            } satisfies DidOpenTextDocumentParams).catch(e => {
-                console.error("Error sending did change text document params")
-                return Promise.reject(e)
-            })
-        })
-    );
-
-    context.subscriptions.push(
         workspace.onDidOpenTextDocument((document : TextDocument) => {
             console.log("[Request] textDocument/didOpen")
             lc.sendRequest("textDocument/didOpen", {
@@ -134,7 +115,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         workspace.onDidCloseTextDocument((document : TextDocument) => {
-            console.log("[Request] textDocument/close")
+            console.log("[Request] textDocument/didClose")
             lc.sendRequest("textDocument/didClose", {
                 textDocument : {
                     uri : document.uri.toString()
