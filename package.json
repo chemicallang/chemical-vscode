@@ -20,7 +20,8 @@
     ],
     "main": "./out/extension",
     "activationEvents": [
-        "onLanguage:semanticLanguage"
+        "onLanguage:semanticLanguage",
+        "onLanguage:chemical"
     ],
     "contributes": {
         "configurationDefaults": {

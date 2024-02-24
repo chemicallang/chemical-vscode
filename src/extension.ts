@@ -70,7 +70,7 @@ export function activate(context: ExtensionContext) {
     };
 
     let clientOptions: LanguageClientOptions = {
-        documentSelector: ['ch'],
+        documentSelector: [{ pattern : "**/*.ch", scheme: 'file', language: 'chemical' }],
         synchronize: {
             fileEvents: workspace.createFileSystemWatcher('**/*.ch')
         }
@@ -79,58 +79,64 @@ export function activate(context: ExtensionContext) {
     // Create the language client and start the client.
     lc = new LanguageClient('Chemical Server', serverOptions, clientOptions);
 
-    context.subscriptions.push(
-        workspace.onDidOpenTextDocument((document : TextDocument) => {
-            console.log("[Request] textDocument/didOpen")
-            lc.sendNotification("textDocument/didOpen", {
-                textDocument : {
-                    uri : document.uri.toString(),
-                    version : document.version,
-                    languageId : document.languageId,
-                    text : document.getText()
-                }
-            } satisfies DidOpenTextDocumentParams).catch(e => {
-                console.error("Error sending did open text document params")
-                return Promise.reject(e)
-            })
-        })
-    )
+    // context.subscriptions.push(
+    //     workspace.onDidOpenTextDocument((document : TextDocument) => {
+    //         const params = {
+    //             textDocument : {
+    //                 uri : document.uri.toString(),
+    //                 version : document.version,
+    //                 languageId : document.languageId,
+    //                 text : document.getText()
+    //             }
+    //         } satisfies DidOpenTextDocumentParams
+    //         console.log("[Request] textDocument/didOpen", params)
+    //         lc.sendNotification("textDocument/didOpen", params).catch(e => {
+    //             console.error("Error sending did open text document params")
+    //             return Promise.reject(e)
+    //         })
+    //     })
+    // )
 
-    context.subscriptions.push(
-        workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
-            console.log("[Request] textDocument/didChange", "changes:" + event.contentChanges.length);
-            lc.sendNotification("textDocument/didChange", {
-                textDocument : {
-                    version: event.document.version,
-                    uri: event.document.uri.toString()
-                },
-                // @ts-ignore since readonly property won't be modified, as its just being serialized
-                contentChanges : event.contentChanges
-            } satisfies DidChangeTextDocumentParams).catch(e => {
-                console.error("Error sending did change text document params")
-                return Promise.reject(e)
-            })
-        })
-    );
+    // context.subscriptions.push(
+    //     workspace.onDidChangeTextDocument((event : TextDocumentChangeEvent) => {
+    //         const params = {
+    //             textDocument : {
+    //                 version: event.document.version,
+    //                 uri: event.document.uri.toString()
+    //             },
+    //             // @ts-ignore since readonly property won't be modified, as its just being serialized
+    //             contentChanges : event.contentChanges
+    //         } satisfies DidChangeTextDocumentParams
+    //         console.log("[Request] textDocument/didChange", params);
+    //         lc.sendNotification("textDocument/didChange", params).catch(e => {
+    //             console.error("Error sending did change text document params")
+    //             return Promise.reject(e)
+    //         })
+    //     })
+    // );
 
-    context.subscriptions.push(
-        workspace.onDidCloseTextDocument((document : TextDocument) => {
-            console.log("[Request] textDocument/didClose")
-            lc.sendNotification("textDocument/didClose", {
-                textDocument : {
-                    uri : document.uri.toString()
-                }
-            } satisfies DidCloseTextDocumentParams).catch(e => {
-                console.error("Error sending did close text document params")
-                return Promise.reject(e)
-            })
-        })
-    )
+    // context.subscriptions.push(
+    //     workspace.onDidCloseTextDocument((document : TextDocument) => {
+    //         const params : DidCloseTextDocumentParams = {
+    //             textDocument : {
+    //                 uri : document.uri.toString()
+    //             }
+    //         }
+    //         console.log("[Request] textDocument/didClose", params)
+    //         lc.sendNotification("textDocument/didClose", params).catch(e => {
+    //             console.error("Error sending did close text document params")
+    //             return Promise.reject(e)
+    //         })
+    //     })
+    // )
 
     context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider({ language : "chemical" }, new DocumentSemanticTokensProvider(), legend));
 
     lc.setTrace(Trace.Verbose);
-    lc.start().then(() => {
+    
+    lc.registerProposedFeatures();
+    
+    return lc.start().then(() => {
         console.log("[Debug] ChemicalLSP Running")
     }).catch((e) => {
         console.error("[Debug] Error running ChemicalLSP", e)
