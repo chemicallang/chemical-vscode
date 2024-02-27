@@ -24,6 +24,13 @@
 } else {
     #// nothing here
 }
+#enum something {
+    nothing
+}
+#enum leaveit{
+    yes,
+    no
+}
 #if(x < 10){
     #// nothing here
     #var e : int = 10;
