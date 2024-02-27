@@ -73,3 +73,13 @@
     #return 3;
 }
 #/* here's a multi line comment */
+#interface something {
+    func add(x : int, y : int) : int
+}
+#do {
+    #// nothing here
+} while(x > 3);
+#struct something {
+    var x = 3;
+    var y = 5;
+}
