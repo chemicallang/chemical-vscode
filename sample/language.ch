@@ -1,3 +1,4 @@
+#import "something.txt";
 #var a = 5;
 #var b = "however the next time won't work";
 #var c = 'x';
