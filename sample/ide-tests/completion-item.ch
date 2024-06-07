@@ -1,4 +1,5 @@
 import "imported-completions.ch"
+import "@system/stdio.h"
 
 enum Something {
     First,
@@ -9,6 +10,8 @@ struct Nested {
     var check_this : int
 }
 
+var x = 5;
+
 struct Fruit {
     var x : () => Nested = () => {
         var z = 10;
@@ -17,7 +20,7 @@ struct Fruit {
     var arr : Nested[]
     func nothing(&self, a : int) : int {
         var a = 0;
-        
+        x();
     }
 }
 
@@ -64,6 +67,9 @@ func main() {
     // get completions after . to check index access work
     str.arr[0].check_this
 
+    // get completions after . to check index access work
+    str_with_ta.arr[0].check_this;
+
     // get completions after . to check var -> struct members work
     str_without_type.x();
 
@@ -71,13 +77,13 @@ func main() {
     str.y.check_this;
 
     // get completions after last . to check typealias types work as well
-    str_with_ta.nothing();
+    str_with_ta.nothing()
 
     // get completions after second last () to check functions return types work as well
     this_function().nothing()
 
     // get completions after () to check lambda return type is detected
-    str.x()
+    str.x().check_this;
 
     var x = 5;
 
