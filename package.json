@@ -7,10 +7,10 @@
     "license": "EPL-1.0",
     "repository": {
         "type": "git",
-        "url": "<your github repo>"
+        "url": "https://github.com/chemicallang/chemical"
     },
     "bugs": {
-        "url": "<your github repo>/issues"
+        "url": "https://github.com/chemicallang/chemical-vscode/issues"
     },
     "engines": {
         "vscode": "^1.67.1"

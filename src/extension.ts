@@ -5,6 +5,10 @@ import * as vscode from 'vscode';
 import { Trace } from 'vscode-jsonrpc';
 import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens, TextDocumentChangeEvent } from 'vscode';
 import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams, DidCloseTextDocumentParams } from 'vscode-languageclient/node';
+import * as fs from 'fs';
+import { execFile } from 'child_process';
+import * as os from 'os';
+import * as path from 'path';
 
 let lc: LanguageClient;
 
@@ -57,7 +61,53 @@ const legend = (function () {
     return new vscode.SemanticTokensLegend(tokenTypesLegend, tokenModifiersLegend);
 })();
 
-export function activate(context: ExtensionContext) {
+function launchLSP(onLaunched : () => void) {
+
+    const platformExtension = os.platform() === 'win32' ? '.exe' : '';
+    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"] 
+    const envVars = ['CHEMICAL-HOME', 'CHEMICAL_HOME', 'CHEMICAL_BIN'];
+    let lspPath: string | null = null;
+
+    for (const envVar of envVars) {
+        const envValue = process.env[envVar];
+        if (envValue && fs.existsSync(envValue)) {
+            var found = false;
+            for(const lspExeName of lspExecutableNames) {
+                const lspExecutableName = lspExeName + platformExtension;
+                const potentialLspPath = path.join(envValue, lspExecutableName);
+                if (fs.existsSync(potentialLspPath)) {
+                    lspPath = potentialLspPath;
+                    found = true;
+                    break;
+                }
+            }
+            if(found) break;
+        }
+    }
+
+    if (!lspPath) {
+        vscode.window.showErrorMessage("Couldn't find Chemical LSP executable. Please install LSP or ensure the environment variable is set correctly.");
+        return;
+    }
+
+   // Launch the executable with parameters
+   // TODO give parameters to the lsp executable that it's being run by the extension
+   execFile(lspPath, [], (error, stdout, stderr) => {
+        if (error) {
+            vscode.window.showErrorMessage(`Error launching Chemical LSP: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            vscode.window.showErrorMessage(`Chemical LSP error: ${stderr}`);
+            return;
+        }
+        onLaunched();
+        console.log(`Chemical LSP started successfully: ${stdout}`);
+    });
+
+}
+
+function launchLanguageClient(context : ExtensionContext) {
 
     let serverOptions = () => {
         // Connect to language server via socket
@@ -89,6 +139,16 @@ export function activate(context: ExtensionContext) {
         console.log("[Debug] ChemicalLSP Running")
     }).catch((e) => {
         console.error("[Debug] Error running ChemicalLSP", e)
+    });
+
+}
+
+export function activate(context: ExtensionContext) {
+
+    launchLSP(() => {
+
+        launchLanguageClient(context);
+
     });
 
 }
