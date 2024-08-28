@@ -2,7 +2,7 @@
     "name": "chemical-vscode",
     "displayName": "Chemical",
     "description": "VSCode extension for Chemical programming language",
-    "version": "0.0.32",
+    "version": "0.0.33",
     "publisher": "chemical",
     "license": "EPL-1.0",
     "icon" : "./icon.png",
