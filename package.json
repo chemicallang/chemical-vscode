@@ -1,11 +1,12 @@
 {
     "name": "chemical-vscode",
     "displayName": "Chemical",
-    "description": "VSCode extension for Chemical programming language",
+    "description": "Extension providing Chemical Programming Language Support, LSP Client for Chemical's LSP Server",
     "version": "0.0.33",
     "publisher": "chemical",
-    "license": "EPL-1.0",
+    "license": "SEE LICENSE IN LICENSE",
     "icon" : "./icon.png",
+    "qna" : "https://github.com/orgs/chemicallang/discussions/categories/q-a",
     "repository": {
         "type": "git",
         "url": "https://github.com/chemicallang/chemical"
@@ -16,6 +17,16 @@
     "engines": {
         "vscode": "^1.67.1"
     },
+    "sponsor" : {
+        "url" : "https://www.patreon.com/wakaztahir"
+    },
+    "keywords": [
+        "Programming",
+        "Language",
+        "LSP",
+        "Chemical",
+        "Qinetik"
+    ],
     "categories": [
         "Programming Languages"
     ],
