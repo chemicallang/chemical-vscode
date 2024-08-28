@@ -36,7 +36,8 @@
                     "chemical"
                 ],
                 "extensions": [
-                    ".ch"
+                    ".ch",
+                    ".lab"
                 ],
                 "configuration": "./chemical.configuration.json"
             }
