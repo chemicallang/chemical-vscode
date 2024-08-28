@@ -1,10 +1,11 @@
 {
     "name": "chemical-vscode",
-    "displayName": "Chemical VSCode",
+    "displayName": "Chemical",
     "description": "VSCode extension for Chemical programming language",
-    "version": "0.0.31",
-    "publisher": "Qinetik",
+    "version": "0.0.32",
+    "publisher": "chemical",
     "license": "EPL-1.0",
+    "icon" : "./icon.png",
     "repository": {
         "type": "git",
         "url": "https://github.com/chemicallang/chemical"
