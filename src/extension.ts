@@ -6,7 +6,7 @@ import { Trace } from 'vscode-jsonrpc';
 import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens, TextDocumentChangeEvent } from 'vscode';
 import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams, DidCloseTextDocumentParams } from 'vscode-languageclient/node';
 import * as fs from 'fs';
-import { execFile } from 'child_process';
+import { exec } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -92,7 +92,7 @@ function launchLSP(onLaunched : () => void) {
 
    // Launch the executable with parameters
    // TODO give parameters to the lsp executable that it's being run by the extension
-   execFile(lspPath, [], (error, stdout, stderr) => {
+    const childProcess = exec(lspPath, (error, stdout, stderr) => {
         if (error) {
             vscode.window.showErrorMessage(`Error launching Chemical LSP: ${error.message}`);
             return;
@@ -101,17 +101,30 @@ function launchLSP(onLaunched : () => void) {
             vscode.window.showErrorMessage(`Chemical LSP error: ${stderr}`);
             return;
         }
-        onLaunched();
-        console.log(`Chemical LSP started successfully: ${stdout}`);
+        console.log(`Chemical LSP shutdown successfully: ${stdout}`);
     });
 
+    // Redirect stdout and stderr
+    childProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    childProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    setTimeout(onLaunched, 500);
+
 }
+
+const DefaultLSPHost = "127.0.0.1"
+const DefaultLSPPort = 5007;
 
 function launchLanguageClient(context : ExtensionContext) {
 
     let serverOptions = () => {
         // Connect to language server via socket
-        let socket = net.connect({ port: 5007 })
+        let socket = net.connect({ port: DefaultLSPPort })
         let result: StreamInfo = {
             writer: socket,
             reader: socket
@@ -143,13 +156,48 @@ function launchLanguageClient(context : ExtensionContext) {
 
 }
 
+async function isPortOccupied(host: string, port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+        const client = new net.Socket();
+
+        client.once('connect', () => {
+            client.end();
+            resolve(true);
+        });
+
+        client.once('error', () => {
+            resolve(false);
+        });
+
+        client.connect({ port, host });
+    });
+}
+
 export function activate(context: ExtensionContext) {
 
-    launchLSP(() => {
+    const isDevelopment = context.extensionMode == vscode.ExtensionMode.Development; // or use your own env variable
 
-        launchLanguageClient(context);
-
-    });
+    if (isDevelopment) {
+        isPortOccupied(DefaultLSPHost, DefaultLSPPort).then((is_occupied) => {
+            if(is_occupied) {
+                vscode.window.showInformationMessage("Launching Chemical LSP In Development Mode");
+                // Only launch the language client directly in development mode
+                launchLanguageClient(context);
+            } else {
+                // default lsp port is not occupied, we must launch the LSP
+                launchLSP(() => {
+                    launchLanguageClient(context);
+                    console.log("Launched Chemical LSP executable");
+                });
+            }
+        })
+    } else {
+        // In production mode, launch the LSP first, then the client
+        launchLSP(() => {
+            launchLanguageClient(context);
+            console.log("Launched Chemical LSP executable");
+        });
+    }
 
 }
 
