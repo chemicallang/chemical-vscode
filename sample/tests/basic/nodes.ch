@@ -19,6 +19,8 @@ interface Calculator {
 
     func divideP(&self) : int;
 
+    func avg(&self) : int;
+
 }
 
 impl Calculator {
@@ -33,18 +35,32 @@ struct Point : Calculator {
     var y : int
 
     // add override keyword to indicate its overriding function present above
+    @override
     func sum(x : int, y : int) : int {
         return x + y;
+    }
+
+    func call_divide(x : int, y : int) : int {
+        return divide(x, y);
+    }
+
+    func call_multiply_p(&self) : int {
+        return multiplyP();
     }
 
     func sumP(&self) : int {
         return self.x + self.y;
     }
 
+    @override
     func multiplyP(&self) : int {
         return self.x * self.y;
     }
 
+}
+
+func (point : Point*) double_sum() : int {
+    return 2 * (point.x + point.y);
 }
 
 struct Container {
@@ -56,6 +72,40 @@ impl Calculator for Point {
     func divideP(&self) : int {
         return self.x / self.y;
     }
+    func avg(&self) : int {
+        return sumP() / 2;
+    }
+}
+
+interface Summer {
+    func summer_sum(&self) : int;
+}
+
+impl Summer for Point {
+    func summer_sum(&self) : int {
+        return x + y;
+    }
+}
+
+@direct_init
+struct DefaultInitStruct {
+
+    var a : int = 43
+    var b : int = 98
+
+    @constructor
+    func make() {
+
+    }
+
+    @constructor
+    func make2(check : bool) {
+        init {
+            a(20)
+            b(30)
+        }
+    }
+
 }
 
 const MyInt = 5;
@@ -98,17 +148,46 @@ func test_nodes() {
     test("switch statement", () => {
        var j = 0;
        switch(j) {
-            case 0 -> {
+            case 0 => {
                 return true;
             }
-            case 1 -> {
+            case 1 => {
                 return false;
             }
-            default -> {
+            default => {
                 return false;
             }
        }
     });
+    test("switch statement case keyword is optional", () => {
+        var j = 0;
+        switch(j) {
+            0 => {
+                return true;
+            }
+            1 => {
+                return false;
+            }
+            default => {
+                return false;
+            }
+        }
+    })
+    test("switch doesn't fallthrough by default", () => {
+        var j = 0;
+        switch(j) {
+            case 0 => {
+                j += 1;
+            }
+            case 1 => {
+                j += 1;
+            }
+            default => {
+                j += 1
+            }
+        }
+        return j == 1;
+    })
     test("struct value initialization", () => {
         var p = Point {
             x : 5,
@@ -188,11 +267,18 @@ func test_nodes() {
         return Calculator.divide(5, 5) == 1;
     })
     test("can call implemented impl functions using struct value", () => {
-         var p = Point {
-             x : 7,
-             y : 6
-         };
+        var p = Point {
+            x : 7,
+            y : 6
+        };
         return p.divide(10, 5) == 2;
+    })
+    test("functions inside struct can call functions inherited directly", () => {
+        var p = Point {
+            x : 7,
+            y : 6
+        };
+        return p.call_divide(10, 5) == 2;
     })
     test("overridden interface struct functions implemented inside struct with self ref", () => {
          var p = Point {
@@ -201,6 +287,13 @@ func test_nodes() {
          };
         return p.multiplyP() == 25;
     });
+    test("overridden interface struct functions implemented inside struct with self ref", () => {
+        var p = Point {
+            x : 5,
+            y : 5
+        };
+        return p.call_multiply_p() == 25;
+    });
     test("overridden interface struct functions implemented using impl keyword with self ref", () => {
          var p = Point {
              x : 5,
@@ -208,16 +301,27 @@ func test_nodes() {
          };
         return p.divideP() == 1;
     });
+    test("impl block can call functions in the struct", () => {
+         var p = Point {
+             x : 15,
+             y : 5
+         };
+        return p.avg() == 10;
+    });
     test("supports null value - 1", () => {
         var x = 1;
         var y = &x;
-        y = null;
-        return y == null;
+        unsafe {
+            y = null;
+            return y == null;
+        }
     })
     test("supports null value - 2", () => {
         var x = 1;
         var y = &x;
-        return y != null;
+        unsafe {
+            return y != null;
+        }
     })
     test("can store struct in an array", () => {
         var arr = {
@@ -231,6 +335,233 @@ func test_nodes() {
             }
         }
         return arr[0].x == 3 && arr[0].y == 4 && arr[1].x == 5 && arr[1].y == 6;
+    })
+    test("extension functions work", () => {
+        var p = Point {
+            x : 10,
+            y : 20
+        }
+        return p.double_sum() == 60;
+    })
+    test("functions of interface implemented outside struct", () => {
+        var p = Point {
+            x : 10,
+            y : 20
+        }
+        return p.summer_sum() == 30;
+    })
+    test("single statement if statement works - 1", () => {
+        if(true) return true else return false
+    })
+    test("single statement if statement works - 2", () => {
+        if(true) return true; else return false;
+    })
+    test("switch statement can have single statement instead of block - 1", () => {
+        var i = 0;
+        switch(i) {
+            0 => return true
+            default => return false
+        }
+    })
+    test("switch statement can have single statement instead of block - 2", () => {
+        var i = 0;
+        switch(i) {
+            0 => return true;
+            default => return false;
+        }
+    })
+    test("if statement can be used as a value - 1", () => {
+        var val = true;
+        var i = if(val) 5 else 6
+        return i == 5;
+    })
+    test("if statement can be used as a value - 1", () => {
+        var val = false;
+        var i = if(val) 5 else 6
+        return i == 6;
+    })
+    test("switch statement can be used as a value - 1", () => {
+        var val = 45;
+        var i = switch(val) {
+             45 => 5
+             default => 6
+        }
+        return i == 5;
+    })
+    test("switch statement can be used as a value - 2", () => {
+        var val = 50;
+        var i = switch(val) {
+             45 => 5
+             default => 6
+        }
+        return i == 6;
+    })
+    test("nested if in if value statements - 1", () => {
+        var i = 2;
+        var j = if(i > 0) if(i < 2) 10 else 20 else 30
+        return j == 20
+    })
+    test("nested if in if value statements - 2", () => {
+        var i = 1;
+        var j = if(i > 0) if(i < 2) 10 else 20 else 30
+        return j == 10
+    })
+    test("nested if in if value statements - 3", () => {
+        var i = 0;
+        var j = if(i > 0) if(i < 2) 10 else 20 else 30
+        return j == 30
+    })
+    test("nested if in if braced value statements - 1", () => {
+        var i = 2;
+        var j = if(i > 0) { if(i < 2) 10 else 20 } else 30
+        return j == 20
+    })
+    test("nested if in if braced value statements - 2", () => {
+        var i = 1;
+        var j = if(i > 0) { if(i < 2) 10 else 20 } else 30
+        return j == 10
+    })
+    test("nested if in if braced value statements - 3", () => {
+        var i = 0;
+        var j = if(i > 0) { if(i < 2) 10 else 20 } else 30
+        return j == 30
+    })
+    test("nested switch in if value statements - 1", () => {
+        var i = 2;
+        var j = if(i > 0) switch(i) {
+            1 => 10
+            2 => 20
+            default => 40
+        } else 0
+        return j == 20
+    })
+    test("nested switch in if value statements - 2", () => {
+        var i = 0;
+        var j = if(i > 0) switch(i) {
+            1 => 10
+            2 => 20
+            default => 40
+        } else 50
+        return j == 50
+    })
+    test("nested switch in if value statements - 3", () => {
+        var i = 1;
+        var j = if(i > 0) switch(i) {
+            1 => 10
+            2 => 20
+            default => 40
+        } else 0
+        return j == 10
+    })
+    test("nested switch in if value statements - 4", () => {
+        var i = 5;
+        var j = if(i > 0) switch(i) {
+            1 => 10
+            2 => 20
+            default => 40
+        } else 0
+        return j == 40
+    })
+    test("nested switch in braced if value statements - 1", () => {
+        var i = 2;
+        var j = if(i > 0) switch(i) {
+            1 => 10
+            2 => 20
+            default => 40
+        } else 0
+        return j == 20
+    })
+    test("nested switch in braced if value statements - 2", () => {
+        var i = 0;
+        var j = if(i > 0) {
+            switch(i) {
+                1 => 10
+                2 => 20
+                default => 40
+            }
+        } else 50
+        return j == 50
+    })
+    test("nested switch in braced if value statements - 3", () => {
+        var i = 1;
+        var j = if(i > 0) {
+            switch(i) {
+                1 => 10
+                2 => 20
+                default => 40
+            }
+        } else 0
+        return j == 10
+    })
+    test("nested switch in braced if value statements - 4", () => {
+        var i = 5;
+        var j = if(i > 0) {
+            switch(i) {
+                1 => 10
+                2 => 20
+                default => 40
+            }
+        } else 0
+        return j == 40
+    })
+    test("nested switch in braced if value statement with additional statement", () => {
+        var i = 5;
+        var j = if(i > 0) {
+            i = 2;
+            switch(i) {
+                1 => 10
+                2 => 20
+                default => 40
+            }
+        } else 0
+        return j == 20
+    })
+    test("loop continue and break work as needed", () => {
+        var i = 0;
+        for(var j = 0; j < 10; j++) {
+            for(var x = 0; x < 5; x++) {
+                if(x == 3) {
+                    break;
+                }
+                i++;
+            }
+            if(j == 7) {
+                break;
+            }
+        }
+        return i == 24;
+    })
+    test("loop block works", () => {
+        var i = 0;
+        loop {
+            if(i == 5) {
+                break;
+            }
+            i++;
+        }
+        return i == 5;
+    })
+    test("loop block works as a value", () => {
+        var i = 0;
+        var j = loop {
+            if(i == 5) {
+                break i;
+            }
+            i++;
+        }
+        return j == i && i == 5;
+    })
+    test("struct is initialized with default values", () => {
+        var d = DefaultInitStruct {}
+        return d.a == 43 && d.b == 98
+    })
+    test("struct is initialized with default values when using constructor", () => {
+        var d = DefaultInitStruct();
+        return d.a == 43 && d.b == 98
+    })
+    test("struct is initialized with values inside init block when using constructor", () => {
+        var d = DefaultInitStruct(true);
+        return d.a == 20 && d.b == 30
     })
 }
 

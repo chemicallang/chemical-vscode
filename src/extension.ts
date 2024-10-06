@@ -199,6 +199,54 @@ export function activate(context: ExtensionContext) {
         });
     }
 
+    context.subscriptions.push(
+        vscode.commands.registerCommand("run-button.debug", () => {
+            vscode.window.showInformationMessage("Not Implemented Running");
+            updateRunButtonVisibility(context, RunButtonStatus.Running);
+            setTimeout(() => {
+                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+            }, 3000);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("run-button.restart", () => {
+            vscode.window.showInformationMessage("Not Implemented Restarting");
+            updateRunButtonVisibility(context, RunButtonStatus.Running);
+            setTimeout(() => {
+                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+            }, 3000);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("run-button.stop", () => {
+            vscode.window.showInformationMessage("Not Implemented Stopped");
+            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+        })
+    );
+
+    updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+
+}
+
+enum RunButtonStatus {
+    Running,
+    Stopped
+}
+
+function updateRunButtonVisibility(context, status : RunButtonStatus) {
+    // Show/hide commands based on conditions
+    var canStart = true;
+    var canRestart = true;
+    var canStop = true;
+    if(status == RunButtonStatus.Running) {
+        canStart = false;
+    } else {
+        canRestart = false;
+        canStop = false;
+    }
+    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canStart', canStart);
+    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canRestart', canRestart);
+    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canStop', canStop);
 }
 
 export function deactivate() {

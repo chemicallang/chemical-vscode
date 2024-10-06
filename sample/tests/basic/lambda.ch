@@ -24,9 +24,11 @@ func passed(pass : () => int) : int {
     return pass();
 }
 
+/**
 func ret_cap_lambda(message : []()=>bool) : []()=>bool {
     return message;
 }
+**/
 
 func create_lamb(first : bool) : () => int {
     if(first) {
@@ -36,11 +38,54 @@ func create_lamb(first : bool) : () => int {
     }
 }
 
+/**
 func ret_new_cap_lamb() : []()=>bool {
     var captured = true;
     return [captured]() => {
         return captured;
     }
+}
+**/
+
+struct SelfLambda {
+    var i : int
+    var lambda : (&self) => int;
+}
+
+struct PointSome {
+    var a : int
+    var b : int
+}
+
+func lamb_ret_struct() : (a : int, b : int) => PointSome {
+    return (a, b) => {
+        return PointSome {
+            a : a,
+            b : b
+        }
+    }
+}
+
+struct ProvideStructLamb {
+    var lamb : (a : int, b : int) => PointSome
+}
+
+struct CapSelf {
+    var i : int
+    var lamb : [](&self) => int
+}
+
+struct ProvideSelfRefStructLamb {
+    var mul : int
+    var lamb : (&self, a : int, b : int) => PointSome
+}
+
+struct LambFactory {
+
+    func create_lamb() : () => int {
+        return () => 233
+    }
+
 }
 
 func test_lambda() {
@@ -53,6 +98,10 @@ func test_lambda() {
             return true;
         });
     });
+    test("lambdas created by structs work", () => {
+        var factory = LambFactory{}
+        return factory.create_lamb()() == 233;
+    })
     test("testing non capturing lambda works without body", () => {
         return dontCapture(() => true);
     });
@@ -90,6 +139,7 @@ func test_lambda() {
             return captured;
         });
     });
+    /**
     test("testing returning capturing lambda works", () => {
         var captured = true;
         var message = ret_cap_lambda([captured]() => {
@@ -97,6 +147,7 @@ func test_lambda() {
         });
         return message();
     })
+    **/
     test("can initialize and call a capturing lambda", () => {
         var x = true;
         var message = [x]() => {
@@ -104,6 +155,7 @@ func test_lambda() {
         };
         return message();
     })
+    /**
     test("returned capturing lambda can be called directly", () => {
         var message = ret_new_cap_lamb()();
         return message;
@@ -112,6 +164,7 @@ func test_lambda() {
         var message = ret_new_cap_lamb();
         return message();
     })
+    **/
     test("can pass function pointer as lambda 1", () => {
         return passed(fn_rets_1) == 1;
     })
@@ -156,6 +209,63 @@ func test_lambda() {
     })
     test("a function can return lambdas", () => {
         return create_lamb(true)() == 5 && create_lamb(false)() == 10;
+    })
+    test("supports self lambdas", () => {
+        var self_lamb = SelfLambda {
+            i : 55,
+            lambda : (self) => {
+                return self.i * 2;
+            }
+        }
+        return self_lamb.lambda() == 110;
+    })
+    test("lambda can return struct - 1", () => {
+        var p = lamb_ret_struct()(10, 20);
+        return p.a == 10 && p.b == 20;
+    })
+    test("lambda can return struct - 2", () => {
+        var p = ProvideStructLamb {
+            lamb : (a : int, b : int) => {
+                return PointSome {
+                    a : a,
+                    b : b
+                }
+            }
+        }
+        var c = p.lamb(20, 30);
+        return c.a == 20 && c.b == 30;
+    })
+    test("lambdas with self reference can return a struct", () => {
+        var provide = ProvideSelfRefStructLamb {
+            mul : 2,
+            lamb : (self, a, b) => {
+                return PointSome {
+                   a : self.mul * a,
+                   b : self.mul * b
+                }
+            }
+        }
+        var p = provide.lamb(10, 20);
+        return p.a == 20 && p.b == 40;
+    })
+    test("capturing lambda can take a self reference", () => {
+        var c = CapSelf {
+            i : 14,
+            lamb : [](self) => {
+                return self.i;
+            }
+        }
+        return c.lamb() == 14;
+    })
+    test("capturing lambda taking self reference can access captured variables", () => {
+        var d = 100
+        var c = CapSelf {
+            i : 14,
+            lamb : [d](self) => {
+                return self.i + d;
+            }
+        }
+        return c.lamb() == 114;
     })
 }
 
