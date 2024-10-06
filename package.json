@@ -75,6 +75,10 @@
     },
     "commands": [
       {
+        "command": "chemical.selectProject",
+        "title": "Select Project"
+      },
+      {
         "command": "run-button.debug",
         "title": "Run",
         "icon": "$(debug-start)"

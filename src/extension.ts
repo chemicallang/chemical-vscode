@@ -226,6 +226,34 @@ export function activate(context: ExtensionContext) {
 
     updateRunButtonVisibility(context, RunButtonStatus.Stopped);
 
+    // project selection
+
+    let currentProject = 'Project 1'; // Default project
+
+    // Create a status bar item
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    statusBarItem.text = `$(folder) ${currentProject}`;
+    statusBarItem.tooltip = 'Select Chemical Project';
+    statusBarItem.command = 'chemical.selectProject';
+    statusBarItem.show();
+
+    context.subscriptions.push(statusBarItem);
+
+    // Register the command
+    const selectProjectCommand = vscode.commands.registerCommand('chemical.selectProject', async () => {
+        const projects = ['Project 1', 'Project 2'];
+        const selectedProject = await vscode.window.showQuickPick(projects, {
+            placeHolder: 'Select a project',
+        });
+
+        if (selectedProject) {
+            currentProject = selectedProject;
+            statusBarItem.text = `$(folder) ${currentProject}`;
+        }
+    });
+
+    context.subscriptions.push(selectProjectCommand);
+
 }
 
 enum RunButtonStatus {

@@ -1,4 +1,6 @@
 import "./temp2.ch"
+import "@std/string.ch"
+import "@system/stdio.h"
 
 struct SomethingElse {
     
