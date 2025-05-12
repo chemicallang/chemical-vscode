@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { exec } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
-import unzipper from "unzipper"
+import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
 
@@ -143,8 +143,11 @@ async function downloadAndExtractLsp(
         }
 
         console.log("extracting downloaded package", zipPath)
-        const dir = await unzipper.Open.file(zipPath)
-        await dir.extract({ path: extractedPath });
+        try {
+            await extract(zipPath, { dir : extractedPath,  })
+        } catch(e) {
+            return new Promise((resolve, reject) => reject(new Error("error extracting '" + e + "'")))
+        }
 
         // Mark as ready
         fs.writeFile(marker, "", "utf8", () => {});
@@ -206,6 +209,16 @@ function fetchReleases(
   });
 }
 
+function getLspReleaseAssetName() : string | null {
+    if (process.platform === 'win32') {
+        return 'windows-x64-lsp';
+    } else if (process.platform === 'linux') {
+        return 'linux-x86-64-lsp';
+    } else {
+        return null
+    }
+}
+
 
 /**
  * Download and extract the LSP binary for the current OS.
@@ -222,10 +235,16 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
   const binaryDir = storageUri.fsPath;
   const extractedPath = path.join(binaryDir, 'lsp');
 
+  // Determine asset name based on platform
+  let assetName = getLspReleaseAssetName()
+  if(assetName == null) {
+     return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
+  }
+
   // If already extracted, return path
   const marker = path.join(extractedPath, '.ready');
   if (fs.existsSync(marker)) {
-    return extractedPath;
+    return path.join(extractedPath, assetName);
   }
  
   // lets create directory for storing the lsp zip
@@ -237,37 +256,29 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
   const releases = await fetchReleases(repoOwner, repoName)
   console.log("fetched releases : ", releases)
 
-    // Determine asset name based on platform
-  let assetName: string;
-  if (process.platform === 'win32') {
-    assetName = 'windows-x64-lsp.zip';
-  } else if (process.platform === 'linux') {
-    assetName = 'linux-x86-64-lsp.zip';
-  } else {
-    return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
-  }
+  let assetFileName = assetName + ".zip"
 
   // Find asset download URL
   let downloadUrl: string | undefined;
   for (let i = 0; i < Math.min(maxReleases, releases.length); i++) {
     const rel = releases[i];
-    const asset = rel.assets.find((a: any) => a.name === assetName);
+    const asset = rel.assets.find((a: any) => a.name === assetFileName);
     if (asset) {
       downloadUrl = asset.browser_download_url;
       break;
     }
   }
   if (!downloadUrl) {
-    return new Promise((resolve, reject) => reject(new Error(`Asset ${assetName} not found in the last ${maxReleases} releases.`)))
+    return new Promise((resolve, reject) => reject(new Error(`Asset ${assetFileName} not found in the last ${maxReleases} releases.`)))
   }
 
   console.log("determined lsp package download url", downloadUrl)
 
   // Download zip
-  const zipPath = path.join(binaryDir, assetName);
+  const zipPath = path.join(binaryDir, assetFileName);
 
   return downloadAndExtractLsp(downloadUrl, zipPath, extractedPath, marker).then(() => {
-    return extractedPath;
+    return path.join(extractedPath, assetName);
   })
 
 }
