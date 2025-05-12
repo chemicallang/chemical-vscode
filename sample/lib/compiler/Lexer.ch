@@ -1,5 +1,6 @@
 import "./SourceProvider.ch"
 import "./LexTokenType.ch"
+import "./CSTToken.ch"
 
 @compiler:interface
 struct Lexer {
@@ -17,7 +18,7 @@ struct Lexer {
     /**
      * put the given token into the tokens vector held by this Lexer
      */
-    func put(&self, value : string*, token_type : LexTokenType, lineNumber : uint, lineCharNumber : uint)
+    func put(&self, value : &string, token_type : LexTokenType, lineNumber : uint, lineCharNumber : uint) : CSTToken*
 
     /**
      * consumes a identifier and store as a variable token
@@ -337,7 +338,7 @@ struct Lexer {
      * meaning '(' expr ')' '{' body '}'
      * @return
      */
-    func lexIfExprAndBlock (&self, is_value : bool, lex_value_node : bool, top_level : bool) :  void;
+    func lexIfExprAndBlock (&self, start : uint, is_value : bool, lex_value_node : bool, top_level : bool) :  bool;
 
     /**
      * lex if block
@@ -367,7 +368,7 @@ struct Lexer {
     /**
      * lex parameter list
      */
-    func lexParameterList (&self, optionalTypes : bool, defValues : bool, lexSelfParam : bool, variadicParam : bool) :  void;
+    func lexParameterList (&self, optionalTypes : bool, defValues : bool, lexSelfParam : bool, variadicParam : bool) :  bool;
 
     /**
     * lexes a function signature with parameters
@@ -591,7 +592,7 @@ struct Lexer {
     /**
      * lex lambda after params list
      */
-    func lexLambdaAfterParamsList (&self, start : uint) :  void;
+    func lexLambdaAfterParamsList (&self, start : uint) :  bool;
 
     /**
      * lexes a single lambda function (PARAM1, PARAM2)[CAP1, CAP2] => {}
@@ -616,7 +617,7 @@ struct Lexer {
      * it will lex a paren expression, meaning '(' expr ')'
      * it assumes you've already consumed '('
      */
-    func lexParenExpressionAfterLParen (&self) :  void;
+    func lexParenExpressionAfterLParen (&self) :  bool;
 
     /**
      * lex a parenthesized expression '(x + 5)'

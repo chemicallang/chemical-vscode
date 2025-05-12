@@ -151,8 +151,6 @@ struct StringValue : Value {}
 
 struct StructValue : Value {
 
-    func get_generic_list(&self) : VecRef<BaseType>*;
-
     func add_value(&self, name : string*, initializer : StructMemberInitializer*)
 
 }
@@ -352,7 +350,7 @@ public struct ASTBuilder {
 
     func make_float_type(&self, token : CSTToken*) : FloatType*
 
-    func make_func_type(&self, returnType : BaseType*, isVariadic : bool, isCapturing : bool, token : CSTToken*) : FunctionType*
+    func make_func_type(&self, returnType : BaseType*, isVariadic : bool, isCapturing : bool, parent : ASTNode*, token : CSTToken*) : FunctionType*
 
     func make_generic_type(&self, linkedType : LinkedType*) : GenericType*
 
@@ -444,7 +442,7 @@ public struct ASTBuilder {
 
     func make_struct_member_initializer(&self, name : string*, value : Value*, structValue : StructValue*) : StructMemberInitializer*
 
-    func make_struct_struct_value(&self, ref : Value*, parent_node : ASTNode*, token : CSTToken*) : StructValue*
+    func make_struct_value(&self, ref : BaseType*, parent_node : ASTNode*, token : CSTToken*) : StructValue*
 
     func make_ubigint_value(&self, value : ubigint, token : CSTToken*) : UBigIntValue*
 
@@ -502,7 +500,7 @@ public struct ASTBuilder {
 
     func make_function(&self, name : string*, returnType : BaseType*, isVariadic : bool, hasBody : bool, parent_node : ASTNode*, token : CSTToken*) : FunctionDeclaration*
 
-    func make_function_param(&self, name : string*, type : BaseType*, index : uint, value : Value*, decl : FunctionType*, token : CSTToken*) : FunctionParam*
+    func make_function_param(&self, name : string*, type : BaseType*, index : uint, value : Value*, implicit : bool, decl : FunctionType*, token : CSTToken*) : FunctionParam*
 
     func make_generic_param(&self, name : string*, def_type : BaseType*, parent_node : ASTNode*, index : uint, token : CSTToken*) : GenericTypeParameter*
 

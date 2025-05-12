@@ -1,31 +1,73 @@
 import "../compiler/Lexer.ch"
 import "../compiler/CSTConverter.ch"
-import "../std/string.ch"
-import "../std/option.ch"
+import "@system/ctype.h"
 
-enum TokenType {
-    LessThan,
-    GreaterThan
+struct HtmlLexer {
+
+    var lexer : Lexer*
+
+    var provider : SourceProvider*
+
+    var has_lt : bool
+
 }
 
-struct Token {
-    var type : TokenType
-    var str : string
+func (html : HtmlLexer*) put_token(value : &string, type : LexTokenType) : CSTToken* {
+    return html.lexer.put(value, type, html.provider.getLineNumber(), html.provider.getLineCharNumber());
 }
 
-func getNextToken(lexer : Lexer*) : Option<Token> {
-    const provider = lexer.provider();
-    const character = provider.readCharacter();
-    var t = Token {
-        type : TokenType.LessThan,
-        str : string()
+func (provider : SourceProvider*) read_tag_name() : string {
+    var str = string();
+    while(true) {
+        const c = provider.peek();
+        if(is_alnum(c) || c == '_' || c == '-' || c == ':') {
+            str.append(c);
+        } else {
+            break;
+        }
     }
-    switch(character) {
+    return str;
+}
+
+func (html : HtmlLexer*) put_next_token() {
+    var c = html.provider.peek();
+    switch(c) {
         '<' => {
-        
+            html.has_lt = true;
+            html.provider.readCharacter();
+            html.lexer.lexOperatorToken('<');
+        }
+        '/' => {
+            if(html.has_lt) {
+                html.provider.readCharacter();
+                html.lexer.lexOperatorToken('/');
+            } else {
+                // TODO diagnostic, lt is not open
+            }
         }
         '>' => {
-
+            if(html.has_lt) {
+                html.has_lt = false;
+                html.lexer.lexOperatorToken('>');
+            } else {
+                // TODO diagnostic, lt is not open, what is '>' doing here
+            }
+        }
+        default => {
+            if(html.has_lt) {
+                if(is_alpha(c)) {
+                    const tag_name = html.provider.read_tag_name();
+                    html.put_token(tag_name, LexTokenType.Keyword);
+                } else {
+                    // TODO diagnostic, tag names must start with letters
+                }
+            } else {
+                var text = string();
+                html.provider.readUntil(&text, '<');
+                if(text.size() != 0) {
+                    html.put_token(text, LexTokenType.RawToken);
+                }
+            }
         }
     }
 }

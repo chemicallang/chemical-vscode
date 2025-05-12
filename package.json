@@ -116,10 +116,10 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "unzipper": "^0.12.3",
     "vscode-languageclient": "^8.0.1"
   },
   "scripts": {
-    "prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "update-vscode": "node ./node_modules/vscode/bin/install"

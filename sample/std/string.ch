@@ -48,6 +48,14 @@ public struct string {
         state = '0'
     }
 
+    @constructor
+    func make_with_char(value : char) {
+        storage.sso.buffer[0] = value;
+        storage.sso.buffer[1] = '\0';
+        storage.sso.length = 1;
+        state = '1'
+    }
+
     func size(&self) : size_t {
         switch(state) {
             case '0' => {

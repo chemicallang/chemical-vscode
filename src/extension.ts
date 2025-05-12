@@ -9,6 +9,9 @@ import * as fs from 'fs';
 import { exec } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
+import unzipper from "unzipper"
+import * as https from "https"
+import * as http from "http"
 
 let lc: LanguageClient;
 
@@ -61,35 +64,216 @@ const legend = (function () {
     return new vscode.SemanticTokensLegend(tokenTypesLegend, tokenModifiersLegend);
 })();
 
-function launchLSP(onLaunched : () => void) {
+/**
+ * Downloads a file from downloadUrl into binaryDir/assetName,
+ * piping it to disk and reporting progress.
+ */
+function downloadZipReportProgress(
+  downloadUrl: string,
+  zipPath: string,
+  progress: vscode.Progress<{ message: string; increment?: number }>
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const url = new URL(downloadUrl);
+    const client = url.protocol === 'https:' ? https : http;
 
-    const platformExtension = os.platform() === 'win32' ? '.exe' : '';
-    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"] 
-    const envVars = ['CHEMICAL-HOME', 'CHEMICAL_HOME', 'CHEMICAL_BIN'];
-    let lspPath: string | null = null;
+    const req = client.get(url, (res) => {
+      const { statusCode, statusMessage, headers } = res;
 
-    for (const envVar of envVars) {
-        const envValue = process.env[envVar];
-        if (envValue && fs.existsSync(envValue)) {
-            var found = false;
-            for(const lspExeName of lspExecutableNames) {
-                const lspExecutableName = lspExeName + platformExtension;
-                const potentialLspPath = path.join(envValue, lspExecutableName);
-                if (fs.existsSync(potentialLspPath)) {
-                    lspPath = potentialLspPath;
-                    found = true;
-                    break;
-                }
-            }
-            if(found) break;
+      // Manually follow 3xx redirects
+      if (statusCode && statusCode >= 300 && statusCode < 400 && headers.location) {
+        // recurse to follow redirect
+        return downloadZipReportProgress(headers.location, zipPath, progress)
+          .then(resolve)
+          .catch(reject);
+      }
+
+      if (!statusCode || statusCode < 200 || statusCode >= 300) {
+        return reject(
+          new Error(`Failed to download asset: ${statusCode} ${statusMessage}`)
+        );
+      }
+
+      const totalSize = Number(headers['content-length'] || '0');
+      let downloaded = 0;
+      const fileStream = fs.createWriteStream(zipPath);
+
+      res.on('data', (chunk: Buffer) => {
+        downloaded += chunk.length;
+        const pct = totalSize
+          ? ((chunk.length / totalSize) * 100)
+          : undefined;
+        progress.report({
+          message: `Downloaded ${(downloaded / 1024 / 1024).toFixed(2)} MB`,
+          increment: pct
+        });
+      });
+
+      res.pipe(fileStream)
+        .on('finish', () => resolve())
+        .on('error', (err) => reject(err));
+    });
+
+    req.on('error', (err) => reject(err));
+  });
+}
+
+async function downloadAndExtractLsp(
+    downloadUrl : string,
+    zipPath : string,
+    extractedPath : string,
+    marker : string
+) : Promise<void> {
+    // Wrap download & extract in progress notification
+  return vscode.window.withProgress({
+    location: vscode.ProgressLocation.Notification,
+    title: 'Downloading & extracting LSP...',
+    cancellable: false
+  }, async (progress) => {
+
+    return downloadZipReportProgress(downloadUrl, zipPath, progress).then(async () => {
+
+        // Extract via system tar/unzip
+        
+        if(fs.existsSync(extractedPath)) {
+            fs.rmdirSync(extractedPath);
+            fs.mkdirSync(extractedPath)        
+        } else {
+            fs.mkdirSync(extractedPath)
         }
-    }
 
-    if (!lspPath) {
-        vscode.window.showErrorMessage("Couldn't find Chemical LSP executable. Please install LSP or ensure the environment variable is set correctly.");
-        return;
-    }
+        console.log("extracting downloaded package", zipPath)
+        const dir = await unzipper.Open.file(zipPath)
+        await dir.extract({ path: extractedPath });
 
+        // Mark as ready
+        fs.writeFile(marker, "", "utf8", () => {});
+
+        progress.report({ message: 'Done extracting', increment: 100 });
+
+    })
+
+  });
+}
+
+/**
+ * Fetches the releases array from GitHub’s API using Node’s native https module.
+ */
+function fetchReleases(
+  repoOwner: string,
+  repoName: string
+): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    const options: https.RequestOptions = {
+      hostname: 'api.github.com',
+      path: `/repos/${repoOwner}/${repoName}/releases`,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'vscode-extension',             // GitHub requires a User-Agent header
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let rawData = '';
+      res.on('data', (chunk) => {
+        rawData += chunk;
+      });
+      res.on('end', () => {
+        const { statusCode, statusMessage } = res;
+        if (statusCode && statusCode >= 200 && statusCode < 300) {
+          try {
+            const releases = JSON.parse(rawData) as any[];
+            resolve(releases);
+          } catch (err) {
+            reject(new Error(`Invalid JSON response: ${err}`));
+          }
+        } else {
+          reject(
+            new Error(
+              `Failed to fetch releases: ${statusCode} ${statusMessage}`
+            )
+          );
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(err);
+    });
+
+    req.end();
+  });
+}
+
+
+/**
+ * Download and extract the LSP binary for the current OS.
+ * Checks up to `maxReleases` most recent releases (including prereleases).
+ */
+async function downloadLspPackage(context: vscode.ExtensionContext): Promise<string> {
+
+  const maxReleases = 5;
+  const repoOwner = 'chemicallang';
+  const repoName = 'chemical';
+
+  // Prepare storage path
+  const storageUri = context.globalStorageUri;
+  const binaryDir = storageUri.fsPath;
+  const extractedPath = path.join(binaryDir, 'lsp');
+
+  // If already extracted, return path
+  const marker = path.join(extractedPath, '.ready');
+  if (fs.existsSync(marker)) {
+    return extractedPath;
+  }
+ 
+  // lets create directory for storing the lsp zip
+  if (!fs.existsSync(binaryDir)) {
+    fs.mkdirSync(binaryDir, { recursive: true });
+  }
+
+  // Fetch releases from GitHub API
+  const releases = await fetchReleases(repoOwner, repoName)
+  console.log("fetched releases : ", releases)
+
+    // Determine asset name based on platform
+  let assetName: string;
+  if (process.platform === 'win32') {
+    assetName = 'windows-x64-lsp.zip';
+  } else if (process.platform === 'linux') {
+    assetName = 'linux-x86-64-lsp.zip';
+  } else {
+    return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
+  }
+
+  // Find asset download URL
+  let downloadUrl: string | undefined;
+  for (let i = 0; i < Math.min(maxReleases, releases.length); i++) {
+    const rel = releases[i];
+    const asset = rel.assets.find((a: any) => a.name === assetName);
+    if (asset) {
+      downloadUrl = asset.browser_download_url;
+      break;
+    }
+  }
+  if (!downloadUrl) {
+    return new Promise((resolve, reject) => reject(new Error(`Asset ${assetName} not found in the last ${maxReleases} releases.`)))
+  }
+
+  console.log("determined lsp package download url", downloadUrl)
+
+  // Download zip
+  const zipPath = path.join(binaryDir, assetName);
+
+  return downloadAndExtractLsp(downloadUrl, zipPath, extractedPath, marker).then(() => {
+    return extractedPath;
+  })
+
+}
+
+
+async function launchLsp(lspPath : string) : Promise<void> {
    // Launch the executable with parameters
    // TODO give parameters to the lsp executable that it's being run by the extension
     const childProcess = exec(lspPath, (error, stdout, stderr) => {
@@ -103,7 +287,6 @@ function launchLSP(onLaunched : () => void) {
         }
         console.log(`Chemical LSP shutdown successfully: ${stdout}`);
     });
-
     // Redirect stdout and stderr
     childProcess.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
@@ -112,9 +295,55 @@ function launchLSP(onLaunched : () => void) {
     childProcess.stderr.on('data', (data) => {
         console.error(`stderr: ${data}`);
     });
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve()
+        }, 500)
+    })
+}
 
-    setTimeout(onLaunched, 500);
+function searchLspExecutable(dirPath : string) : string | null {
+    console.log("searching for lsp executable at path", dirPath)
+    const platformExtension = os.platform() === 'win32' ? '.exe' : '';
+    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"] 
+    for(const lspExeName of lspExecutableNames) {
+        const lspExecutableName = lspExeName + platformExtension;
+        const potentialLspPath = path.join(dirPath, lspExecutableName);
+        if (fs.existsSync(potentialLspPath)) {
+            return potentialLspPath;
+        }
+    }
+    return null;
+}
 
+async function findAndlaunchLSP(context : vscode.ExtensionContext) : Promise<void> {
+
+    const envVars = ['CHEMICAL-HOME', 'CHEMICAL_HOME', 'CHEMICAL_BIN'];
+    let lspPath: string | null = null;
+
+    for (const envVar of envVars) {
+        const envValue = process.env[envVar];
+        if (envValue && fs.existsSync(envValue)) {
+            const found = searchLspExecutable(envValue)
+            if(found != null) {
+                lspPath = found;
+                break;
+            }
+        }
+    }
+
+    if (lspPath) {
+        return launchLsp(lspPath);
+    } else {
+        return downloadLspPackage(context).then((pkgDir) => {
+            const found = searchLspExecutable(pkgDir)
+            if(found != null) {
+                return launchLsp(found)
+            } else {
+                return new Promise((resolve, reject) => reject("couldn't find lsp executable in downloaded package"))
+            }
+        });
+    }
 }
 
 const DefaultLSPHost = "127.0.0.1"
@@ -159,16 +388,13 @@ function launchLanguageClient(context : ExtensionContext) {
 async function isPortOccupied(host: string, port: number): Promise<boolean> {
     return new Promise((resolve) => {
         const client = new net.Socket();
-
         client.once('connect', () => {
             client.end();
             resolve(true);
         });
-
         client.once('error', () => {
             resolve(false);
         });
-
         client.connect({ port, host });
     });
 }
@@ -185,18 +411,26 @@ export function activate(context: ExtensionContext) {
                 launchLanguageClient(context);
             } else {
                 // default lsp port is not occupied, we must launch the LSP
-                launchLSP(() => {
-                    launchLanguageClient(context);
+                const launched = findAndlaunchLSP(context)
+                launched.then(() => {
                     console.log("Launched Chemical LSP executable");
-                });
+                    launchLanguageClient(context);
+                }).catch((e) => {
+                    console.error("error launching lsp", e)
+                    vscode.window.showErrorMessage("error launching chemical lsp '" + e + '\'');
+                })
             }
         })
     } else {
         // In production mode, launch the LSP first, then the client
-        launchLSP(() => {
-            launchLanguageClient(context);
+        const launched = findAndlaunchLSP(context)
+        launched.then(() => {
             console.log("Launched Chemical LSP executable");
-        });
+            launchLanguageClient(context);
+        }).catch((e) => {
+            console.error("error launching lsp", e)
+            vscode.window.showErrorMessage("error launching chemical lsp '" + e + '\'');
+        })
     }
 
     context.subscriptions.push(

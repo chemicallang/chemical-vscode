@@ -1,62 +1,180 @@
-import "./temp2.ch"
-import "@std/string.ch"
-import "@system/stdio.h"
+import "@std/std.ch"
 
-struct SomethingElse {
-    
-}
+public struct string {
 
-func check_param(param : SomethingElse2) {
-    var jj = WondaLove {}
-}
+    union {
+        struct {
+            var data : char*;
+            var length : size_t;
+        } constant;
+        struct {
+            var data : char*;
+            var length : size_t;
+            var capacity : size_t;
+        } heap;
+        struct {
+            var buffer : char[16]
+            var length : uchar
+        } sso;
+    } storage;
+    var state : char;
 
-struct CheckGen<T> {
-
-}
-
-variant Thing {
-    Apple(i : int)
-    Mango(a : int)
-    Banan(y : int)
-}
-
-func give_gen() : CheckGcen<int> {
-    
-}
-
-func main() {
-    var strux = SomethingElse2 {
-    
-    }
-    var t : Thing = Thing.Apple(i)
-
-    var j : Thing = Thing.Mango(i)
-
-    var jj : Thing = Thing.Banan(i)
-
-    var strux = 2;
-    var strux2 = CheckGexn<int> {
-    
-    }
-    var nothing = "";
-
-    var arr = {
-        SomethingElvse {}
-    };
-    var axrr : Chcecdfdksd[] = {
-    
+    @comptime
+    @constructor
+    func make(value : literal<string>) {
+        return compiler::wrap(constructor(value, compiler::size(value)))
     }
 
-    var arx : Cvcvceks[]
-    var xx : SomethindfdfgSSS = SomethingSSS {
-
+    @constructor
+    func make1() {
+        unsafe {
+            storage.constant.data = null;
+        }
+        storage.constant.length = 0;
+        state = '0';
     }
-    // var i = 0;
-    i++;
-    i += 1;
-    i.nothing.work = 0;
 
-    something = 2;
-    SomethingElse.check();
-    call_me();
+    @constructor
+    func constructor(value : char*, length : size_t) {
+        storage.constant.data = value;
+        storage.constant.length = length;
+        state = '0'
+    }
+
+    @constructor
+    func make_no_len(value : char*) {
+        storage.constant.data = value;
+        storage.constant.length = strlen(value);
+        state = '0'
+    }
+
+    func size(&self) : size_t {
+        switch(state) {
+            case '0' => {
+                return storage.constant.length;
+            }
+            case '1' => {
+                return storage.sso.length;
+            }
+            case '2' => {
+                return storage.heap.length;
+            }
+            default => {
+                return 0;
+            }
+        }
+    }
+
+    func equals(&self, other : string*) : bool {
+        const self_size = size();
+        return self_size == other.size() && memcmp(self.data(), other.data(), self_size) == 0;
+    }
+
+    func move_const_to_buffer(&self) {
+        const data = storage.constant.data;
+        const length = storage.constant.length;
+        unsafe {
+            if(data != null) {
+                for(var i = 0;i < length; i++) {
+                    storage.sso.buffer[i] = data[i]
+                }
+            }
+        }
+        storage.sso.buffer[length] = '\0'
+        storage.sso.length = length;
+        state = '1'
+    }
+
+    func move_data_to_heap(&self, from_data : char*, length : size_t, capacity : size_t) {
+        var data = malloc(capacity) as char*
+        var i = 0;
+        while(i < length) {
+            data[i] = from_data[i];
+            i++;
+        }
+        data[i] = '\0';
+        storage.heap.data = data;
+        storage.heap.length = length;
+        storage.heap.capacity = capacity;
+        state = '2'
+    }
+
+    func resize(&self, new_capacity : size_t) {
+        var data = realloc(storage.heap.data, new_capacity) as char*
+        data[storage.heap.length] = '\0'
+        storage.heap.data = data;
+        storage.heap.capacity = new_capacity;
+    }
+
+    func ensure_mut(&self, length : size_t) {
+        if((state == '0' || state == '1') && length < 16) {
+            if(state == '0') {
+                move_const_to_buffer()
+            }
+        } else {
+            if(state == '0') {
+                move_data_to_heap(storage.constant.data, storage.constant.length, length);
+            } else if(state == '1') {
+                move_data_to_heap(&storage.sso.buffer[0], storage.sso.length, length);
+            } else if(storage.heap.capacity <= length) {
+                resize(length);
+            }
+        }
+    }
+
+    func set(&self, index : size_t, value : char) {
+        switch(state) {
+            case '0' => {
+                move_const_to_buffer();
+                storage.sso.buffer[index] = value;
+            }
+            case '1' => {
+                storage.sso.buffer[index] = value;
+            }
+            case '2' => {
+                storage.heap.data[index] = value;
+            }
+        }
+    }
+
+    func get(&self, index : size_t) : char {
+        switch(state) {
+            case '0' => {
+                return storage.constant.data[index];
+            }
+            case '1' => {
+                return storage.sso.buffer[index];
+            }
+            case '2' => {
+                return storage.heap.data[index];
+            }
+            default => {
+                return '\0'    
+            }
+        }
+    }
+
+    func append_with_len(&self, value : char*, len : size_t) {
+        ensure_mut(size() + len + 1);
+        var i : size_t = 0;
+        while(i < len) {
+            append(value[i]);
+            i++;
+        }
+    }
+
+    func append_char_ptr(&self, value : char*) {
+        append_with_len(value, strlen(value));
+    }
+
+    func copy(&self) : string {
+        return substring(0, size());
+    }
+
+}
+
+
+func main() : int {
+
+
 }
