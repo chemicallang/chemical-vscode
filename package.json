@@ -2,7 +2,7 @@
   "name": "chemical-vscode",
   "displayName": "Chemical",
   "description": "Extension providing Chemical Programming Language Support, LSP Client for Chemical's LSP Server",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "publisher": "chemical",
   "license": "SEE LICENSE IN LICENSE",
   "icon": "./icon.png",
@@ -120,6 +120,7 @@
     "vscode-languageclient": "^8.0.1"
   },
   "scripts": {
+    "prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "update-vscode": "node ./node_modules/vscode/bin/install"
