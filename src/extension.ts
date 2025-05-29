@@ -12,6 +12,7 @@ import * as path from 'path';
 import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
+import { compareVersions, parseVersion } from "./version";
 
 let lc: LanguageClient;
 
@@ -69,147 +70,148 @@ const legend = (function () {
  * piping it to disk and reporting progress.
  */
 function downloadZipReportProgress(
-  downloadUrl: string,
-  zipPath: string,
-  progress: vscode.Progress<{ message: string; increment?: number }>
+    downloadUrl: string,
+    zipPath: string,
+    progress: vscode.Progress<{ message: string; increment?: number }>
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const url = new URL(downloadUrl);
-    const client = url.protocol === 'https:' ? https : http;
+    return new Promise((resolve, reject) => {
+        const url = new URL(downloadUrl);
+        const client = url.protocol === 'https:' ? https : http;
 
-    const req = client.get(url, (res) => {
-      const { statusCode, statusMessage, headers } = res;
+        const req = client.get(url, (res) => {
+            const { statusCode, statusMessage, headers } = res;
 
-      // Manually follow 3xx redirects
-      if (statusCode && statusCode >= 300 && statusCode < 400 && headers.location) {
-        // recurse to follow redirect
-        return downloadZipReportProgress(headers.location, zipPath, progress)
-          .then(resolve)
-          .catch(reject);
-      }
+            // Manually follow 3xx redirects
+            if (statusCode && statusCode >= 300 && statusCode < 400 && headers.location) {
+                // recurse to follow redirect
+                return downloadZipReportProgress(headers.location, zipPath, progress)
+                    .then(resolve)
+                    .catch(reject);
+            }
 
-      if (!statusCode || statusCode < 200 || statusCode >= 300) {
-        return reject(
-          new Error(`Failed to download asset: ${statusCode} ${statusMessage}`)
-        );
-      }
+            if (!statusCode || statusCode < 200 || statusCode >= 300) {
+                return reject(
+                    new Error(`Failed to download asset: ${statusCode} ${statusMessage}`)
+                );
+            }
 
-      const totalSize = Number(headers['content-length'] || '0');
-      let downloaded = 0;
-      const fileStream = fs.createWriteStream(zipPath);
+            const totalSize = Number(headers['content-length'] || '0');
+            let downloaded = 0;
+            const fileStream = fs.createWriteStream(zipPath);
 
-      res.on('data', (chunk: Buffer) => {
-        downloaded += chunk.length;
-        const pct = totalSize
-          ? ((chunk.length / totalSize) * 100)
-          : undefined;
-        progress.report({
-          message: `Downloaded ${(downloaded / 1024 / 1024).toFixed(2)} MB`,
-          increment: pct
+            res.on('data', (chunk: Buffer) => {
+                downloaded += chunk.length;
+                const pct = totalSize
+                    ? ((chunk.length / totalSize) * 100)
+                    : undefined;
+                progress.report({
+                    message: `Downloaded ${(downloaded / 1024 / 1024).toFixed(2)} MB`,
+                    increment: pct
+                });
+            });
+
+            res.pipe(fileStream)
+                .on('finish', () => resolve())
+                .on('error', (err) => reject(err));
         });
-      });
 
-      res.pipe(fileStream)
-        .on('finish', () => resolve())
-        .on('error', (err) => reject(err));
+        req.on('error', (err) => reject(err));
     });
-
-    req.on('error', (err) => reject(err));
-  });
 }
 
 async function downloadAndExtractLsp(
-    downloadUrl : string,
-    zipPath : string,
-    extractedPath : string,
-    marker : string
-) : Promise<void> {
+    title : string,
+    downloadUrl: string,
+    zipPath: string,
+    extractedPath: string,
+    marker: string
+): Promise<void> {
     // Wrap download & extract in progress notification
-  return vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: 'Downloading & extracting LSP...',
-    cancellable: false
-  }, async (progress) => {
+    return vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async (progress) => {
 
-    return downloadZipReportProgress(downloadUrl, zipPath, progress).then(async () => {
+        return downloadZipReportProgress(downloadUrl, zipPath, progress).then(async () => {
 
-        // Extract via system tar/unzip
-        
-        if(fs.existsSync(extractedPath)) {
-            fs.rmdirSync(extractedPath);
-            fs.mkdirSync(extractedPath)        
-        } else {
-            fs.mkdirSync(extractedPath)
-        }
+            // Extract via system tar/unzip
 
-        console.log("extracting downloaded package", zipPath)
-        try {
-            await extract(zipPath, { dir : extractedPath,  })
-        } catch(e) {
-            return new Promise((resolve, reject) => reject(new Error("error extracting '" + e + "'")))
-        }
+            if (fs.existsSync(extractedPath)) {
+                fs.rmdirSync(extractedPath);
+                fs.mkdirSync(extractedPath)
+            } else {
+                fs.mkdirSync(extractedPath)
+            }
 
-        // Mark as ready
-        fs.writeFile(marker, "", "utf8", () => {});
+            console.log("extracting downloaded package", zipPath)
+            try {
+                await extract(zipPath, { dir: extractedPath, })
+            } catch (e) {
+                return new Promise((resolve, reject) => reject(new Error("error extracting '" + e + "'")))
+            }
 
-        progress.report({ message: 'Done extracting', increment: 100 });
+            // Mark as ready
+            fs.writeFile(marker, "", "utf8", () => { });
 
-    })
+            progress.report({ message: 'Done extracting', increment: 100 });
 
-  });
+        })
+
+    });
 }
 
 /**
  * Fetches the releases array from GitHub’s API using Node’s native https module.
  */
 function fetchReleases(
-  repoOwner: string,
-  repoName: string
+    repoOwner: string,
+    repoName: string
 ): Promise<any[]> {
-  return new Promise((resolve, reject) => {
-    const options: https.RequestOptions = {
-      hostname: 'api.github.com',
-      path: `/repos/${repoOwner}/${repoName}/releases`,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'vscode-extension',             // GitHub requires a User-Agent header
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    };
+    return new Promise((resolve, reject) => {
+        const options: https.RequestOptions = {
+            hostname: 'api.github.com',
+            path: `/repos/${repoOwner}/${repoName}/releases`,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'vscode-extension',             // GitHub requires a User-Agent header
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        };
 
-    const req = https.request(options, (res) => {
-      let rawData = '';
-      res.on('data', (chunk) => {
-        rawData += chunk;
-      });
-      res.on('end', () => {
-        const { statusCode, statusMessage } = res;
-        if (statusCode && statusCode >= 200 && statusCode < 300) {
-          try {
-            const releases = JSON.parse(rawData) as any[];
-            resolve(releases);
-          } catch (err) {
-            reject(new Error(`Invalid JSON response: ${err}`));
-          }
-        } else {
-          reject(
-            new Error(
-              `Failed to fetch releases: ${statusCode} ${statusMessage}`
-            )
-          );
-        }
-      });
+        const req = https.request(options, (res) => {
+            let rawData = '';
+            res.on('data', (chunk) => {
+                rawData += chunk;
+            });
+            res.on('end', () => {
+                const { statusCode, statusMessage } = res;
+                if (statusCode && statusCode >= 200 && statusCode < 300) {
+                    try {
+                        const releases = JSON.parse(rawData) as any[];
+                        resolve(releases);
+                    } catch (err) {
+                        reject(new Error(`Invalid JSON response: ${err}`));
+                    }
+                } else {
+                    reject(
+                        new Error(
+                            `Failed to fetch releases: ${statusCode} ${statusMessage}`
+                        )
+                    );
+                }
+            });
+        });
+
+        req.on('error', (err) => {
+            reject(err);
+        });
+
+        req.end();
     });
-
-    req.on('error', (err) => {
-      reject(err);
-    });
-
-    req.end();
-  });
 }
 
-function getLspReleaseAssetName() : string | null {
+function getLspReleaseAssetName(): string | null {
     if (process.platform === 'win32') {
         return 'windows-x64-lsp';
     } else if (process.platform === 'linux') {
@@ -219,6 +221,150 @@ function getLspReleaseAssetName() : string | null {
     }
 }
 
+async function getLspPkgDir(context: vscode.ExtensionContext): Promise<string | null> {
+
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const extractedPath = path.join(binaryDir, 'lsp');
+
+    // Determine asset name based on platform
+    let assetName = getLspReleaseAssetName()
+    if (assetName == null) {
+        return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
+    }
+
+    // If already extracted, return path
+    const marker = path.join(extractedPath, '.ready');
+    if (fs.existsSync(marker)) {
+        return path.join(extractedPath, assetName);
+    }
+
+    return null
+
+}
+
+function getReleaseAsset(rel: any, assetFileName: string) {
+    const asset = rel.assets.find((a: any) => a.name === assetFileName);
+    if (asset) {
+        return asset.browser_download_url;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Download and extract the LSP binary for the current OS (update)
+ * Checks up to `maxReleases` most recent releases (including prereleases).
+ */
+async function downloadLspPackageUpdate(
+    context: vscode.ExtensionContext,
+    currVersion: string,
+    considerNightly: boolean,
+    considerAlphaBeta: boolean
+): Promise<string | null> {
+
+    console.log("Checking for updates, current version ", currVersion);
+
+    const maxReleases = 5;
+    const repoOwner = 'chemicallang';
+    const repoName = 'chemical';
+
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const extractedPath = path.join(binaryDir, 'lsp-update');
+
+    // Determine asset name based on platform
+    let assetName = getLspReleaseAssetName()
+    if (assetName == null) {
+        return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
+    }
+
+    // lets create directory for storing the lsp zip
+    if (!fs.existsSync(binaryDir)) {
+        fs.mkdirSync(binaryDir, { recursive: true });
+    }
+
+    // Fetch releases from GitHub API
+    const releases = await fetchReleases(repoOwner, repoName)
+    console.log("fetched releases : ", releases)
+
+    const currentVersion = parseVersion(currVersion)
+    if (currentVersion == null) {
+        console.error("couldn't parse current version", currVersion);
+        return null;
+    }
+
+    let assetFileName = assetName + ".zip"
+
+    //   // Find asset download URL
+    let downloadUrl: string | undefined;
+    for (let i = 0; i < Math.min(maxReleases, releases.length); i++) {
+        const rel = releases[i];
+        if (rel.name != null) {
+            const newVersion = parseVersion(rel.name)
+            if (newVersion.prerelease != null) {
+                if (considerNightly && newVersion.prerelease == "nightly") {
+                    const compareResult = compareVersions(newVersion, currentVersion)
+                    if (compareResult == 1) {
+                        // greater
+                        const url = getReleaseAsset(rel, assetFileName)
+                        if (url != null) {
+                            downloadUrl = url;
+                            break;
+                        } else {
+                            return new Promise((res, rej) => rej("couldn't get release download url"))
+                        }
+                    }
+                } else if (considerAlphaBeta && (newVersion.prerelease == "alpha" || newVersion.prerelease == "beta")) {
+                    const compareResult = compareVersions(newVersion, currentVersion)
+                    if (compareResult == 1) {
+                        // greater
+                        const url = getReleaseAsset(rel, assetFileName)
+                        if (url != null) {
+                            downloadUrl = url;
+                            break;
+                        } else {
+                            return new Promise((res, rej) => rej("couldn't get release download url"))
+                        }
+                    }
+                }
+            } else {
+                const compareResult = compareVersions(newVersion, currentVersion)
+                if (compareResult == 1) {
+                    // greater
+                    const url = getReleaseAsset(rel, assetFileName)
+                    if (url != null) {
+                        downloadUrl = url;
+                        break;
+                    } else {
+                        return new Promise((res, rej) => rej("couldn't get release download url"))
+                    }
+                } else if (compareResult == -1) {
+                    // new version is smaller stable version (no need to check further)
+                    break;
+                }
+            }
+        }
+
+    }
+
+    // no update found
+    if (!downloadUrl) {
+        return null;
+    }
+
+    console.log("determined lsp update package download url", downloadUrl)
+
+    // Download zip
+    const zipPath = path.join(binaryDir, assetFileName);
+    const marker = path.join(extractedPath, '.ready');
+    return downloadAndExtractLsp("Downloading Chemical LSP Update", downloadUrl, zipPath, extractedPath, marker).then(() => {
+        return path.join(extractedPath, assetName);
+    })
+
+}
 
 /**
  * Download and extract the LSP binary for the current OS.
@@ -226,67 +372,61 @@ function getLspReleaseAssetName() : string | null {
  */
 async function downloadLspPackage(context: vscode.ExtensionContext): Promise<string> {
 
-  const maxReleases = 5;
-  const repoOwner = 'chemicallang';
-  const repoName = 'chemical';
+    const maxReleases = 5;
+    const repoOwner = 'chemicallang';
+    const repoName = 'chemical';
 
-  // Prepare storage path
-  const storageUri = context.globalStorageUri;
-  const binaryDir = storageUri.fsPath;
-  const extractedPath = path.join(binaryDir, 'lsp');
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const extractedPath = path.join(binaryDir, 'lsp');
 
-  // Determine asset name based on platform
-  let assetName = getLspReleaseAssetName()
-  if(assetName == null) {
-     return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
-  }
-
-  // If already extracted, return path
-  const marker = path.join(extractedPath, '.ready');
-  if (fs.existsSync(marker)) {
-    return path.join(extractedPath, assetName);
-  }
- 
-  // lets create directory for storing the lsp zip
-  if (!fs.existsSync(binaryDir)) {
-    fs.mkdirSync(binaryDir, { recursive: true });
-  }
-
-  // Fetch releases from GitHub API
-  const releases = await fetchReleases(repoOwner, repoName)
-  console.log("fetched releases : ", releases)
-
-  let assetFileName = assetName + ".zip"
-
-  // Find asset download URL
-  let downloadUrl: string | undefined;
-  for (let i = 0; i < Math.min(maxReleases, releases.length); i++) {
-    const rel = releases[i];
-    const asset = rel.assets.find((a: any) => a.name === assetFileName);
-    if (asset) {
-      downloadUrl = asset.browser_download_url;
-      break;
+    // Determine asset name based on platform
+    let assetName = getLspReleaseAssetName()
+    if (assetName == null) {
+        return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
     }
-  }
-  if (!downloadUrl) {
-    return new Promise((resolve, reject) => reject(new Error(`Asset ${assetFileName} not found in the last ${maxReleases} releases.`)))
-  }
 
-  console.log("determined lsp package download url", downloadUrl)
+    // lets create directory for storing the lsp zip
+    if (!fs.existsSync(binaryDir)) {
+        fs.mkdirSync(binaryDir, { recursive: true });
+    }
 
-  // Download zip
-  const zipPath = path.join(binaryDir, assetFileName);
+    // Fetch releases from GitHub API
+    const releases = await fetchReleases(repoOwner, repoName)
+    console.log("fetched releases : ", releases)
 
-  return downloadAndExtractLsp(downloadUrl, zipPath, extractedPath, marker).then(() => {
-    return path.join(extractedPath, assetName);
-  })
+    let assetFileName = assetName + ".zip"
+
+    // Find asset download URL
+    let downloadUrl: string | undefined;
+    for (let i = 0; i < Math.min(maxReleases, releases.length); i++) {
+        const rel = releases[i];
+        const asset = rel.assets.find((a: any) => a.name === assetFileName);
+        if (asset) {
+            downloadUrl = asset.browser_download_url;
+            break;
+        }
+    }
+    if (!downloadUrl) {
+        return new Promise((resolve, reject) => reject(new Error(`Asset ${assetFileName} not found in the last ${maxReleases} releases.`)))
+    }
+
+    console.log("determined lsp package download url", downloadUrl)
+
+    // Download zip
+    const zipPath = path.join(binaryDir, assetFileName);
+    const marker = path.join(extractedPath, '.ready');
+    return downloadAndExtractLsp("Downloading Chemical LSP...", downloadUrl, zipPath, extractedPath, marker).then(() => {
+        return path.join(extractedPath, assetName);
+    })
 
 }
 
 
-async function launchLsp(lspPath : string) : Promise<void> {
-   // Launch the executable with parameters
-   // TODO give parameters to the lsp executable that it's being run by the extension
+async function launchLsp(lspPath: string): Promise<void> {
+    // Launch the executable with parameters
+    // TODO give parameters to the lsp executable that it's being run by the extension
     const childProcess = exec(lspPath, (error, stdout, stderr) => {
         if (error) {
             vscode.window.showErrorMessage(`Error launching Chemical LSP: ${error.message}`);
@@ -313,11 +453,11 @@ async function launchLsp(lspPath : string) : Promise<void> {
     })
 }
 
-function searchLspExecutable(dirPath : string) : string | null {
+function searchLspExecutable(dirPath: string): string | null {
     console.log("searching for lsp executable at path", dirPath)
     const platformExtension = os.platform() === 'win32' ? '.exe' : '';
-    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"] 
-    for(const lspExeName of lspExecutableNames) {
+    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"]
+    for (const lspExeName of lspExecutableNames) {
         const lspExecutableName = lspExeName + platformExtension;
         const potentialLspPath = path.join(dirPath, lspExecutableName);
         if (fs.existsSync(potentialLspPath)) {
@@ -327,40 +467,53 @@ function searchLspExecutable(dirPath : string) : string | null {
     return null;
 }
 
-async function findAndlaunchLSP(context : vscode.ExtensionContext) : Promise<void> {
-
-    const envVars = ['CHEMICAL-HOME', 'CHEMICAL_HOME', 'CHEMICAL_BIN'];
+function findEnvLspPath(): string | null {
+    const envVars = ['CHEMICAL_LSP_HOME'];
     let lspPath: string | null = null;
-
     for (const envVar of envVars) {
         const envValue = process.env[envVar];
         if (envValue && fs.existsSync(envValue)) {
             const found = searchLspExecutable(envValue)
-            if(found != null) {
+            if (found != null) {
                 lspPath = found;
                 break;
             }
         }
     }
+    return lspPath;
+}
 
-    if (lspPath) {
-        return launchLsp(lspPath);
+async function launchLspFromPkgDir(pkgDir: string): Promise<void> {
+    const found = searchLspExecutable(pkgDir)
+    if (found != null) {
+        return launchLsp(found)
     } else {
-        return downloadLspPackage(context).then((pkgDir) => {
-            const found = searchLspExecutable(pkgDir)
-            if(found != null) {
-                return launchLsp(found)
+        return new Promise((resolve, reject) => reject("couldn't find lsp executable in downloaded package"))
+    }
+}
+
+// returns whether updates should be checked
+async function findAndlaunchLSP(context: vscode.ExtensionContext): Promise<boolean> {
+    const lspPath = findEnvLspPath()
+    if (lspPath) {
+        return launchLsp(lspPath).then(() => false);
+    } else {
+        return getLspPkgDir(context).then((pkgDir) => {
+            if (pkgDir != null) {
+                return launchLspFromPkgDir(pkgDir).then(() => true);
             } else {
-                return new Promise((resolve, reject) => reject("couldn't find lsp executable in downloaded package"))
+                return downloadLspPackage(context).then((pkgDir) => {
+                    return launchLspFromPkgDir(pkgDir).then(() => false)
+                })
             }
-        });
+        })
     }
 }
 
 const DefaultLSPHost = "127.0.0.1"
 const DefaultLSPPort = 5007;
 
-function launchLanguageClient(context : ExtensionContext) {
+function launchLanguageClient(context: ExtensionContext): Promise<string | null> {
 
     let serverOptions = () => {
         // Connect to language server via socket
@@ -373,7 +526,7 @@ function launchLanguageClient(context : ExtensionContext) {
     };
 
     let clientOptions: LanguageClientOptions = {
-        documentSelector: [{ pattern : "**/*.ch", scheme: 'file', language: 'chemical' }],
+        documentSelector: [{ pattern: "**/*.ch", scheme: 'file', language: 'chemical' }],
         synchronize: {
             fileEvents: workspace.createFileSystemWatcher('**/*.ch')
         }
@@ -382,17 +535,35 @@ function launchLanguageClient(context : ExtensionContext) {
     // Create the language client and start the client.
     lc = new LanguageClient('Chemical Server', serverOptions, clientOptions);
 
-    context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider({ language : "chemical" }, new DocumentSemanticTokensProvider(), legend));
+    context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider({ language: "chemical" }, new DocumentSemanticTokensProvider(), legend));
 
     lc.setTrace(Trace.Verbose);
-    
+
     lc.registerProposedFeatures();
-    
+
     return lc.start().then(() => {
         console.log("[Debug] ChemicalLSP Running")
+
+        let result = lc.initializeResult
+        if (result != null) {
+            let info = result.serverInfo
+            if (info != null) {
+                let version = info.version
+                if (version != null) {
+                    return version;
+                }
+            }
+        }
+
+        return null;
+
     }).catch((e) => {
-        console.error("[Debug] Error running ChemicalLSP", e)
-    });
+
+        console.log("error launching lsp", e);
+
+        return null;
+
+    })
 
 }
 
@@ -416,16 +587,20 @@ export function activate(context: ExtensionContext) {
 
     if (isDevelopment) {
         isPortOccupied(DefaultLSPHost, DefaultLSPPort).then((is_occupied) => {
-            if(is_occupied) {
-                vscode.window.showInformationMessage("Launching Chemical LSP In Development Mode");
+            if (is_occupied) {
+                vscode.window.showInformationMessage("Port Occupied, Chemical LSP Development Mode");
                 // Only launch the language client directly in development mode
                 launchLanguageClient(context);
             } else {
                 // default lsp port is not occupied, we must launch the LSP
                 const launched = findAndlaunchLSP(context)
-                launched.then(() => {
+                launched.then((checkForUpdates) => {
                     console.log("Launched Chemical LSP executable");
-                    launchLanguageClient(context);
+                    launchLanguageClient(context).then((currVersion) => {
+                        if (checkForUpdates) {
+                            downloadLspPackageUpdate(context, currVersion, false, true)
+                        }
+                    })
                 }).catch((e) => {
                     console.error("error launching lsp", e)
                     vscode.window.showErrorMessage("error launching chemical lsp '" + e + '\'');
@@ -435,9 +610,13 @@ export function activate(context: ExtensionContext) {
     } else {
         // In production mode, launch the LSP first, then the client
         const launched = findAndlaunchLSP(context)
-        launched.then(() => {
+        launched.then((checkForUpdates) => {
             console.log("Launched Chemical LSP executable");
-            launchLanguageClient(context);
+            launchLanguageClient(context).then((currVersion) => {
+                if (checkForUpdates) {
+                    downloadLspPackageUpdate(context, currVersion, false, true);
+                }
+            });
         }).catch((e) => {
             console.error("error launching lsp", e)
             vscode.window.showErrorMessage("error launching chemical lsp '" + e + '\'');
@@ -506,12 +685,12 @@ enum RunButtonStatus {
     Stopped
 }
 
-function updateRunButtonVisibility(context, status : RunButtonStatus) {
+function updateRunButtonVisibility(context, status: RunButtonStatus) {
     // Show/hide commands based on conditions
     var canStart = true;
     var canRestart = true;
     var canStop = true;
-    if(status == RunButtonStatus.Running) {
+    if (status == RunButtonStatus.Running) {
         canStart = false;
     } else {
         canRestart = false;
@@ -544,24 +723,24 @@ class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensPro
         console.log("[Request] textDocument/semanticTokens/full");
         // @ts-ignore
         return lc.sendRequest("textDocument/semanticTokens/full", {
-            textDocument : {
-                uri : document.uri.toString()
+            textDocument: {
+                uri: document.uri.toString()
             }
         } satisfies SemanticTokensParams).catch(e => {
             console.error("Error sending semantic tokens request", e)
             return Promise.reject(e)
         })
     }
-    
+
     // TODO
     // onDidChangeSemanticTokens ?: vscode.Event<void> = function (e) {
-            // Not implemented Yet
-            // Also the return type is Disposable
+    // Not implemented Yet
+    // Also the return type is Disposable
     // }
 
     // TODO
     // async provideDocumentSemanticTokensEdits(document: vscode.TextDocument, previousResultId: string, token: vscode.CancellationToken): vscode.ProviderResult<vscode.SemanticTokens | vscode.SemanticTokensEdits> {
-           // Not implemented Yet
+    // Not implemented Yet
     // }
 
     // private _encodeTokenType(tokenType: string): number {
