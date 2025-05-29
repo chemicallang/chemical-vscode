@@ -313,8 +313,6 @@ async function downloadLspPackageUpdate(
                         if (url != null) {
                             downloadUrl = url;
                             break;
-                        } else {
-                            return new Promise((res, rej) => rej("couldn't get release download url"))
                         }
                     }
                 } else if (considerAlphaBeta && (newVersion.prerelease == "alpha" || newVersion.prerelease == "beta")) {
@@ -325,8 +323,6 @@ async function downloadLspPackageUpdate(
                         if (url != null) {
                             downloadUrl = url;
                             break;
-                        } else {
-                            return new Promise((res, rej) => rej("couldn't get release download url"))
                         }
                     }
                 }
@@ -338,12 +334,7 @@ async function downloadLspPackageUpdate(
                     if (url != null) {
                         downloadUrl = url;
                         break;
-                    } else {
-                        return new Promise((res, rej) => rej("couldn't get release download url"))
                     }
-                } else if (compareResult == -1) {
-                    // new version is smaller stable version (no need to check further)
-                    break;
                 }
             }
         }
