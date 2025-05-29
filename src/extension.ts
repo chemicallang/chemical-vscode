@@ -6,7 +6,7 @@ import { Trace } from 'vscode-jsonrpc';
 import { window, workspace, commands, ExtensionContext, Uri, TextDocument, languages, SemanticTokensLegend, CancellationToken, ProviderResult, SemanticTokens, TextDocumentChangeEvent } from 'vscode';
 import { LanguageClient, LanguageClientOptions, StreamInfo, Position as LSPosition, Location as LSLocation, SemanticTokenTypes, SemanticTokenModifiers, TextDocumentIdentifier, SemanticTokensParams, DidChangeTextDocumentParams, DidOpenTextDocumentParams, DidCloseTextDocumentParams } from 'vscode-languageclient/node';
 import * as fs from 'fs';
-import { exec } from 'child_process';
+import { ChildProcess, ChildProcessWithoutNullStreams, exec, spawn } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
 import * as extract from "extract-zip"
@@ -288,7 +288,7 @@ async function downloadLspPackageUpdate(
 
     // Fetch releases from GitHub API
     const releases = await fetchReleases(repoOwner, repoName)
-    console.log("fetched releases : ", releases)
+    // console.log("fetched releases : ", releases)
 
     const currentVersion = parseVersion(currVersion)
     if (currentVersion == null) {
@@ -361,6 +361,7 @@ async function downloadLspPackageUpdate(
     const zipPath = path.join(binaryDir, assetFileName);
     const marker = path.join(extractedPath, '.ready');
     return downloadAndExtractLsp("Downloading Chemical LSP Update", downloadUrl, zipPath, extractedPath, marker).then(() => {
+        fs.rmSync(zipPath)
         return path.join(extractedPath, assetName);
     })
 
@@ -418,45 +419,49 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
     const zipPath = path.join(binaryDir, assetFileName);
     const marker = path.join(extractedPath, '.ready');
     return downloadAndExtractLsp("Downloading Chemical LSP...", downloadUrl, zipPath, extractedPath, marker).then(() => {
+        fs.rmSync(zipPath)
         return path.join(extractedPath, assetName);
     })
 
 }
 
+let childProcess: ChildProcessWithoutNullStreams | null = null;
 
 async function launchLsp(lspPath: string): Promise<void> {
-    // Launch the executable with parameters
-    // TODO give parameters to the lsp executable that it's being run by the extension
-    const childProcess = exec(lspPath, (error, stdout, stderr) => {
-        if (error) {
-            vscode.window.showErrorMessage(`Error launching Chemical LSP: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            vscode.window.showErrorMessage(`Chemical LSP error: ${stderr}`);
-            return;
-        }
-        console.log(`Chemical LSP shutdown successfully: ${stdout}`);
-    });
-    // Redirect stdout and stderr
+    // Launch the LSP process using spawn
+    // [] is where you'd pass command-line arguments if needed
+    childProcess = spawn(lspPath, [], { stdio: 'pipe' });
+
+    // Listen to stdout
     childProcess.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
+        console.log(`Chemical LSP stdout: ${data}`);
     });
 
+    // Listen to stderr
     childProcess.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
+        console.error(`Chemical LSP stderr: ${data}`);
     });
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve()
-        }, 500)
-    })
+
+    // Handle process exit
+    childProcess.on('exit', (code, signal) => {
+        console.log(`Chemical LSP exited with code ${code}, signal ${signal}`);
+    });
+
+    // Handle possible spawn errors
+    childProcess.on('error', (err) => {
+        vscode.window.showErrorMessage(`Error launching Chemical LSP: ${err.message}`);
+    });
+
+    // Optional: Wait a bit to ensure process is running
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(), 500);
+    });
 }
 
 function searchLspExecutable(dirPath: string): string | null {
     console.log("searching for lsp executable at path", dirPath)
     const platformExtension = os.platform() === 'win32' ? '.exe' : '';
-    const lspExecutableNames = ["ChemicalLSP", "lsp", "chemical-lsp"]
+    const lspExecutableNames = ["lsp", "ChemicalLSP", "chemical-lsp"]
     for (const lspExeName of lspExecutableNames) {
         const lspExecutableName = lspExeName + platformExtension;
         const potentialLspPath = path.join(dirPath, lspExecutableName);
@@ -492,7 +497,7 @@ async function launchLspFromPkgDir(pkgDir: string): Promise<void> {
     }
 }
 
-// returns whether updates should be checked
+// returns whether update should be checked
 async function findAndlaunchLSP(context: vscode.ExtensionContext): Promise<boolean> {
     const lspPath = findEnvLspPath()
     if (lspPath) {
