@@ -253,6 +253,10 @@ function getReleaseAsset(rel: any, assetFileName: string) {
     }
 }
 
+const maxReleases = 5;
+const repoOwner = 'chemicallang';
+const repoName = 'chemical';
+
 /**
  * Download and extract the LSP binary for the current OS (update)
  * Checks up to `maxReleases` most recent releases (including prereleases).
@@ -264,22 +268,18 @@ async function downloadLspPackageUpdate(
     considerAlphaBeta: boolean
 ): Promise<string | null> {
 
-    console.log("Checking for updates, current version ", currVersion);
-
-    const maxReleases = 5;
-    const repoOwner = 'chemicallang';
-    const repoName = 'chemical';
-
-    // Prepare storage path
-    const storageUri = context.globalStorageUri;
-    const binaryDir = storageUri.fsPath;
-    const extractedPath = path.join(binaryDir, 'lsp-update');
-
     // Determine asset name based on platform
     let assetName = getLspReleaseAssetName()
     if (assetName == null) {
         return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
     }
+
+    console.log("Checking for updates, current version ", currVersion);
+
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const extractedPath = path.join(binaryDir, 'lsp-update');
 
     // lets create directory for storing the lsp zip
     if (!fs.existsSync(binaryDir)) {
@@ -367,26 +367,55 @@ async function downloadLspPackageUpdate(
 
 }
 
+function doLocalUpdateBeforeLaunch(context : vscode.ExtensionContext) {
+
+    // Determine asset name based on platform
+    let assetName = getLspReleaseAssetName()
+    if (assetName == null) {
+        // unsupported platform
+        return;
+    }
+
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const lspExtractedPath = path.join(binaryDir, "lsp")
+    const updateExtractedPath = path.join(binaryDir, "lsp-update");
+
+    // check lsp-update exists
+    if(!fs.existsSync(updateExtractedPath)) {
+        return false;
+    }
+
+    // just to make sure lsp does exists
+    if(!fs.existsSync(lspExtractedPath)) {
+        return false;
+    }
+
+    // delete the lsp directory
+    fs.rmSync(lspExtractedPath, { force : true, recursive : true })
+
+    // rename to new lsp directory
+    fs.renameSync(updateExtractedPath, lspExtractedPath)
+
+}
+
 /**
  * Download and extract the LSP binary for the current OS.
  * Checks up to `maxReleases` most recent releases (including prereleases).
  */
 async function downloadLspPackage(context: vscode.ExtensionContext): Promise<string> {
 
-    const maxReleases = 5;
-    const repoOwner = 'chemicallang';
-    const repoName = 'chemical';
-
-    // Prepare storage path
-    const storageUri = context.globalStorageUri;
-    const binaryDir = storageUri.fsPath;
-    const extractedPath = path.join(binaryDir, 'lsp');
-
     // Determine asset name based on platform
     let assetName = getLspReleaseAssetName()
     if (assetName == null) {
         return new Promise((resolve, reject) => reject(new Error(`Unsupported platform: ${process.platform}`)))
     }
+
+    // Prepare storage path
+    const storageUri = context.globalStorageUri;
+    const binaryDir = storageUri.fsPath;
+    const extractedPath = path.join(binaryDir, 'lsp');
 
     // lets create directory for storing the lsp zip
     if (!fs.existsSync(binaryDir)) {
@@ -395,7 +424,7 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
 
     // Fetch releases from GitHub API
     const releases = await fetchReleases(repoOwner, repoName)
-    console.log("fetched releases : ", releases)
+    // console.log("fetched releases : ", releases)
 
     let assetFileName = assetName + ".zip"
 
@@ -505,6 +534,7 @@ async function findAndlaunchLSP(context: vscode.ExtensionContext): Promise<boole
     } else {
         return getLspPkgDir(context).then((pkgDir) => {
             if (pkgDir != null) {
+                doLocalUpdateBeforeLaunch(context)
                 return launchLspFromPkgDir(pkgDir).then(() => true);
             } else {
                 return downloadLspPackage(context).then((pkgDir) => {
@@ -709,6 +739,11 @@ function updateRunButtonVisibility(context, status: RunButtonStatus) {
 export function deactivate() {
     return lc.stop().then(() => {
         console.log("[Debug] ChemicalLSP Stopped")
+        if (childProcess) {
+            console.log('Shutting down Chemical LSP...');
+            childProcess.kill(); // Sends SIGTERM
+            childProcess = null;
+        }
     }).catch((e) => {
         console.error("[Debug] Error Stopping ChemicalLSP", e)
     });
