@@ -58,7 +58,11 @@ public func main() {
 
     // strings
     var myStr = "something gotta give"
-    var myStr2 = "something \" got to give"
+    var myStr2 = "some \" thing \" got \" to \" give"
+    var multilineStr = "
+        Something here and there
+        Something here and there
+    "
 
     // index operator values
     var indexer_1 = myStr[0]
