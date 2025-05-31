@@ -1,14 +1,14 @@
 /**
- * This file contains declarations that you should 
+ * This file contains declarations that should 
  * render nicely, for editing, we can test by editing
  * each declaration, and omitting or including information
- * into that node to see its effects
+ * into that node to see if its affects
  */
 
 // Annotations
 @extern
 // Variable Statements
-var a : int
+var GlobalVariable : int
 
 // Typealiases
 public type MyInt = int
@@ -88,6 +88,16 @@ namespace Hogwarts {
 // Structs
 struct FoodProviderImpl {
     var food : int
+}
+
+// Extension Functions
+func (food : &FoodProviderImpl) print() {
+    printf(food.food);
+}
+
+// Generic Functions
+func <T, A> get_food() {
+
 }
 
 // Unions
