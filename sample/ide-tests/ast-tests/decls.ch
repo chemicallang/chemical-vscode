@@ -1,0 +1,104 @@
+/**
+ * This file contains declarations that you should 
+ * render nicely, for editing, we can test by editing
+ * each declaration, and omitting or including information
+ * into that node to see its effects
+ */
+
+// Annotations
+@extern
+// Variable Statements
+var a : int
+
+// Typealiases
+public type MyInt = int
+
+// Enums
+public enum Fruits {
+    Orange,
+    Mango,
+    Banana
+}
+
+// Function Declaration
+@extern
+public func printf(format : *mut char, _ : any...);
+
+// Functions
+public func main() {
+
+    // access chain as node
+    Fruits.Orange
+
+    // function call in access chain as node
+    printf("Hello World");
+
+    // do while loop
+    do {
+
+    } while(true);
+
+    // for loop
+    for(var i = 0; i < 3; i++) {
+
+    }
+
+    // if statement
+    if(i < 3) {
+
+    }
+
+    // while loop
+    while(i < 3) {
+
+    }
+
+    // Provide Statement
+    provide a as something {
+        
+    }
+
+}
+
+// Interface
+interface FoodProvider {
+    
+    func provide() : int
+
+}
+
+// Alias Statement
+alias RealFoodProvider = FoodProvider;
+
+// Impl Block
+impl FoodProvider {
+    @override
+    func provide() : int {
+        return 3;
+    }
+}
+
+// Namespace
+namespace Hogwarts {
+
+    public var HarrysWand : int;
+
+}
+
+// Structs
+struct FoodProviderImpl {
+    var food : int
+}
+
+// Unions
+union FoodProviderUnionImpl {
+    var food1 : int
+    var food2 : int
+}
+
+// Variants
+variant FoodOrWater {
+    Food(i : int)
+    Water(i : long)
+}
+
