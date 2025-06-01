@@ -56,13 +56,22 @@ public func main() {
     var myChar = 'x'
     var myChar2 = '\n'
 
+    // a comment inside
+    var x = 303;/**
+     * something doesn't feel right
+     */var x = 44;
+
     // strings
     var myStr = "something gotta give"
-    var myStr2 = "some \" thing \" got \" to \" give"
-    var multilineStr = "
+    var myStr2 = "some \" thing \t got \t to \t give"
+    var myStr3 = "sometimes \" \" \" \" \" nme"
+    var multilineStr = """save it till the end
+    I'm not going to say
         Something here and there
         Something here and there
-    "
+    """;var something_else = "";
+    var multilineStr2 = """something
+    something I'd like to say""";var x = """nothing is here too""";
 
     // index operator values
     var indexer_1 = myStr[0]
