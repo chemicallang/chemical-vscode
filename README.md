@@ -1,36 +1,32 @@
 ## Chemical Programming Language
 
-### Requirements
 
-- Please install Chemical LSP, which is included with
-Chemical Programming Language Development Kit.
-
-  You can download it from our releases page here:
-  #### https://github.com/chemicallang/chemical/releases
-
-- Use `chemical configure` command, so it's configured for your Operating System
-
-### Manual
-
-- Have chemical's binary folder where the LSP's binary is present at `CHEMICAL-HOME` environment variable.
-  
-     This would be done automatically by chemical configure command.
-
-
-### Details
-
-Chemical is a Performant & Flexible Programming language that generates native code.
+Chemical is a High Performance Native Programming Language. It uses `.ch` as its file extension.
 
 You can find more information about it here.
 
-https://github.com/chemicallang/chemical
+[Github](https://github.com/chemicallang/chemical)
 
-### Learn
+### Do a Hello World
 
-You can learn about chemical at
+Save this file as `main.ch` and open it in the IDE after installing this extension.
 
-https://chemical.qinetik.org
+```chemical
+@extern
+public func printf(format : *char, _ : any...)
 
-### Starting out
+public func main() : int {
+  printf("Hello World");
+  return 0;
+}
+```
 
-As we are just starting out, Please note this extension and Chemical Compiler may not produce the best result always. Thanks for your patience as we improve.
+### Got any questions ?
+
+Feel free to create an issue, if this extension doesn't work for you or if you experience any problems.
+
+Please create an issue [here](https://github.com/chemicallang/chemical/issues).
+
+### Support me
+
+Please consider supporting my work through patreon.
