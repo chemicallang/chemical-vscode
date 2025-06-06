@@ -82,13 +82,14 @@ public func main() {
 
     // lambda function value
     var myLamb = () => {
-
+        
     }
 
     // new and placement new value
     var myNewStr = new Temp {};
     new (myNewStr) Temp { }
 
-
+    // function call
+    call_func(10, 20);
 
 }

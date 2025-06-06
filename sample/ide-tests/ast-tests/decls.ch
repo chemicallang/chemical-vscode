@@ -33,6 +33,9 @@ public func main() {
     // function call in access chain as node
     printf("Hello World");
 
+    // Assignment
+    GlobalVariable = 0;
+
     // do while loop
     do {
 
@@ -40,6 +43,14 @@ public func main() {
 
     // for loop
     for(var i = 0; i < 3; i++) {
+
+        if(i == 0) {
+            // Break Statement
+            break;
+        } else if(i == 1) {
+            // Continue Statement
+            continue;
+        }
 
     }
 
@@ -53,10 +64,40 @@ public func main() {
 
     }
 
+    // loop Block
+    loop {
+        var i = 0;
+    }
+
     // Provide Statement
     provide a as something {
         
     }
+
+    // Switch Statement
+    switch(GlobalVariable) {
+        1 => {
+
+        }
+        2 => {
+
+        }
+        default => {
+
+        }
+    }
+
+    // Destruct Statement
+    destruct value;
+    destruct[something_else] value
+
+    // Unsafe Block
+    unsafe {
+        print_something(0, 2);
+    }
+
+    // Return Statement
+    return;
 
 }
 
@@ -87,7 +128,28 @@ namespace Hogwarts {
 
 // Structs
 struct FoodProviderImpl {
+    
+    // Struct Member
     var food : int
+
+    // Unnamed Union
+    union {
+        var food2 : int
+    } another_;
+
+    // Unnamed Struct
+    struct {
+        var food3 : int
+    } call_it;
+
+    @make
+    func make() {
+        // Init Block
+        init {
+            food(3)
+        }
+    }
+
 }
 
 // Extension Functions
@@ -111,4 +173,3 @@ variant FoodOrWater {
     Food(i : int)
     Water(i : long)
 }
-
