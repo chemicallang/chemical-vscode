@@ -12,6 +12,9 @@ LLVM
 bin/cpptools*
 bin/vcmeta.dll
 
+# ignore the build directory
+sample/build
+
 # ignore lock files
 install.lock
 
