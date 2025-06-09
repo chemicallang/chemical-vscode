@@ -13,6 +13,7 @@ import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
 import { compareVersions, parseVersion } from "./version";
+import { compileAndRunCommand, getConfiguredLspPath } from "./compileAndRun";
 
 let lc: LanguageClient;
 
@@ -446,8 +447,13 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
 }
 
 let childProcess: ChildProcessWithoutNullStreams | null = null;
+let launchedLspPath : string | null = null;
 
 async function launchLsp(lspPath: string): Promise<void> {
+
+    // set to global variable for accessing it for commands
+    launchedLspPath = lspPath;
+
     // Launch the LSP process using spawn
     // [] is where you'd pass command-line arguments if needed
     childProcess = spawn(lspPath, [], { stdio: 'pipe' });
@@ -651,8 +657,13 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("run-button.debug", () => {
-            vscode.window.showInformationMessage("Not Implemented Running");
             updateRunButtonVisibility(context, RunButtonStatus.Running);
+            if(launchedLspPath == null) {
+                vscode.window.showInformationMessage("LSP not yet started");
+            } else {
+                const lspPath = getConfiguredLspPath(launchedLspPath);
+                compileAndRunCommand(lspPath);
+            }
             setTimeout(() => {
                 updateRunButtonVisibility(context, RunButtonStatus.Stopped);
             }, 3000);
