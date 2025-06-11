@@ -4,6 +4,14 @@ func print_fib(first_num : int, second_num : int) {
     print_fib(second_num, next_num)
 }
 
+func something() {
+    
+}
+
+func add(a : int, b : int) : int {
+    return a + b;
+}
+
 public func main(argc : int, argv : *mut char) : int {
     printf("Arg count : %d\n", argc)
     printf("First %s\n", argv)

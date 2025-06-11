@@ -558,9 +558,17 @@ function launchLanguageClient(context: ExtensionContext): Promise<string | null>
     };
 
     let clientOptions: LanguageClientOptions = {
-        documentSelector: [{ pattern: "**/*.ch", scheme: 'file', language: 'chemical' }],
+        documentSelector: [
+            { scheme: 'file', language: 'chemical' },
+            { scheme: 'file', language: 'chemical-lab' },
+            { scheme: 'file', language: 'chemical-mod' }
+        ],
         synchronize: {
-            fileEvents: workspace.createFileSystemWatcher('**/*.ch')
+            fileEvents: [
+                workspace.createFileSystemWatcher('**/*.ch'),
+                workspace.createFileSystemWatcher('**/*.lab'),
+                workspace.createFileSystemWatcher('**/chemical.mod')
+            ]
         }
     };
 

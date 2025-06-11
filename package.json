@@ -33,7 +33,9 @@
   "main": "./out/extension",
   "activationEvents": [
     "onLanguage:semanticLanguage",
-    "onLanguage:chemical"
+    "onLanguage:chemical",
+    "onLanguage:chemical-lab",
+    "onLanguage:chemical-mod"
   ],
   "contributes": {
     "configurationDefaults": {
@@ -48,10 +50,41 @@
           "chemical"
         ],
         "extensions": [
-          ".ch",
+          ".ch"
+        ],
+        "configuration": "./chemical.configuration.json",
+        "icon" : {
+            "light" : "./icons/chemical.icon.svg",
+            "dark" : "./icons/chemical.icon.svg"
+        }
+      },
+      {
+        "id": "chemical-lab",
+        "aliases": [
+          "chemical"
+        ],
+        "extensions": [
           ".lab"
         ],
-        "configuration": "./chemical.configuration.json"
+        "configuration": "./chemical.configuration.json",
+        "icon" : {
+            "light" : "./icons/build.lab.icon.svg",
+            "dark" : "./icons/build.lab.icon.svg"
+        }
+      },
+      {
+        "id": "chemical-mod",
+        "aliases": [
+          "chemical"
+        ],
+        "filenames": [
+          "chemical.mod"
+        ],
+        "configuration": "./chemical.configuration.json",
+        "icon" : {
+            "light" : "./icons/chemical.mod.icon.svg",
+            "dark" : "./icons/chemical.mod.icon.svg"
+        }
       }
     ],
     "menus": {
