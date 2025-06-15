@@ -92,17 +92,7 @@
         {
           "command": "run-button.debug",
           "group": "navigation",
-          "when": "activeEditor == workbench.editors.files.textFileEditor && (resourceExtname == '.ch' || resourceExtname == '.lab') && chemicalRunButton:canStart"
-        },
-        {
-          "command": "run-button.restart",
-          "group": "navigation",
-          "when": "activeEditor == workbench.editors.files.textFileEditor && (resourceExtname == '.ch' || resourceExtname == '.lab') && chemicalRunButton:canRestart"
-        },
-        {
-          "command": "run-button.stop",
-          "group": "navigation",
-          "when": "activeEditor == workbench.editors.files.textFileEditor && (resourceExtname == '.ch' || resourceExtname == '.lab') && chemicalRunButton:canStop"
+          "when": "activeEditor == workbench.editors.files.textFileEditor && (resourceExtname == '.ch' || resourceExtname == '.lab')"
         }
       ]
     },
@@ -115,16 +105,6 @@
         "command": "run-button.debug",
         "title": "Run",
         "icon": "$(debug-start)"
-      },
-      {
-        "command": "run-button.restart",
-        "title": "Restart",
-        "icon": "$(debug-restart)"
-      },
-      {
-        "command": "run-button.stop",
-        "title": "Stop",
-        "icon": "$(debug-stop)"
       }
     ],
     "configuration": {
@@ -134,15 +114,6 @@
           "type": "string",
           "default": "",
           "description": "Override path to bundled Chemical compiler (lsp.exe)"
-        },
-        "run-button.actionWhileRunning": {
-          "type": "string",
-          "default": "restart",
-          "enum": [
-            "restart",
-            "stop"
-          ],
-          "description": "Action to show while debugging is active."
         }
       }
     }

@@ -13,7 +13,7 @@ import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
 import { compareVersions, parseVersion } from "./version";
-import { compileAndRunCommand, getConfiguredLspPath } from "./compileAndRun";
+import { compileAndRunCommand, getConfiguredLspPath, registerChemicalTasks } from "./compileAndRun";
 
 let lc: LanguageClient;
 
@@ -621,6 +621,8 @@ async function isPortOccupied(host: string, port: number): Promise<boolean> {
     });
 }
 
+let isChemicalTaskRunning = false;
+
 export function activate(context: ExtensionContext) {
 
     const isDevelopment = context.extensionMode == vscode.ExtensionMode.Development; // or use your own env variable
@@ -637,6 +639,9 @@ export function activate(context: ExtensionContext) {
                 launched.then((checkForUpdates) => {
                     console.log("Launched Chemical LSP executable");
                     launchLanguageClient(context).then((currVersion) => {
+                        if(launchedLspPath != null) {
+                            registerChemicalTasks(context, launchedLspPath)
+                        }
                         if (checkForUpdates) {
                             downloadLspPackageUpdate(context, currVersion, false, true)
                         }
@@ -653,6 +658,9 @@ export function activate(context: ExtensionContext) {
         launched.then((checkForUpdates) => {
             console.log("Launched Chemical LSP executable");
             launchLanguageClient(context).then((currVersion) => {
+                if(launchedLspPath != null) {
+                    registerChemicalTasks(context, launchedLspPath)
+                }
                 if (checkForUpdates) {
                     downloadLspPackageUpdate(context, currVersion, false, true);
                 }
@@ -664,33 +672,36 @@ export function activate(context: ExtensionContext) {
     }
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("run-button.debug", () => {
-            updateRunButtonVisibility(context, RunButtonStatus.Running);
-            if(launchedLspPath == null) {
-                vscode.window.showInformationMessage("LSP not yet started");
-            } else {
-                const lspPath = getConfiguredLspPath(launchedLspPath);
-                compileAndRunCommand(lspPath);
-            }
-            setTimeout(() => {
-                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-            }, 3000);
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand("run-button.restart", () => {
-            vscode.window.showInformationMessage("Not Implemented Restarting");
-            updateRunButtonVisibility(context, RunButtonStatus.Running);
-            setTimeout(() => {
-                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-            }, 3000);
-        })
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand("run-button.stop", () => {
-            vscode.window.showInformationMessage("Not Implemented Stopped");
+    vscode.commands.registerCommand("run-button.debug", async () => {
+        if (isChemicalTaskRunning) return; // Prevent re-entry
+        isChemicalTaskRunning = true;
+        updateRunButtonVisibility(context, RunButtonStatus.Running);
+
+        try {
+        const tasks = await vscode.tasks.fetchTasks({ type: "chemical" });
+        const build = tasks.find(t => t.definition.task === 'build');
+        if (!build) {
+            vscode.window.showErrorMessage('Cannot find Chemical build task.');
             updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-        })
+            isChemicalTaskRunning = false;
+            return;
+        }
+
+        const taskExecution = await vscode.tasks.executeTask(build);
+
+        const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+            if (e.execution.task === build) {
+            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+            isChemicalTaskRunning = false;
+            disposable.dispose();
+            }
+        });
+        } catch (err) {
+        vscode.window.showErrorMessage('Failed to run build task.');
+        updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+        isChemicalTaskRunning = false;
+        }
+    })
     );
 
     updateRunButtonVisibility(context, RunButtonStatus.Stopped);
@@ -731,19 +742,7 @@ enum RunButtonStatus {
 }
 
 function updateRunButtonVisibility(context, status: RunButtonStatus) {
-    // Show/hide commands based on conditions
-    var canStart = true;
-    var canRestart = true;
-    var canStop = true;
-    if (status == RunButtonStatus.Running) {
-        canStart = false;
-    } else {
-        canRestart = false;
-        canStop = false;
-    }
-    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canStart', canStart);
-    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canRestart', canRestart);
-    vscode.commands.executeCommand('setContext', 'chemicalRunButton:canStop', canStop);
+
 }
 
 export function deactivate() {
