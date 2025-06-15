@@ -1,7 +1,7 @@
 ## Chemical Programming Language
 
 
-Chemical is a High Performance Native Programming Language. It uses `.ch` as its file extension.
+Chemical is a High Performance Native Programming Language.
 
 You can find more information about it here.
 
@@ -9,17 +9,26 @@ You can find more information about it here.
 
 ### Do a Hello World
 
-Save this file as `main.ch` and open it in the IDE after installing this extension.
+Save this in `src/main.ch`
 
 ```chemical
-@extern
-public func printf(format : *char, _ : any...)
-
 public func main() : int {
   printf("Hello World");
   return 0;
 }
 ```
+
+and save this in `chemical.mod`
+
+```
+module main
+
+source "src"
+
+import std
+```
+
+> Now press the play button in top right corner
 
 ### Got any questions ?
 
