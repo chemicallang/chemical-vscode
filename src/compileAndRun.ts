@@ -85,9 +85,10 @@ export function registerChemicalTasks(context: vscode.ExtensionContext, lspPath:
         // === Build Task ===
         const buildDef: vscode.TaskDefinition = { type: CHEMICAL_TYPE, task: 'build' };
         const exeName = process.platform === 'win32' ? 'main.exe' : 'main';
+        const finalOutput = "build/" + exeName;
         const buildExec = new vscode.ProcessExecution(
           lspPath,
-          ['cc', sourceFile, '-o', exeName],
+          ['cc', sourceFile, '-o', finalOutput],
           { cwd: wsFolder }
         );
         const buildTask = new vscode.Task(
@@ -107,7 +108,7 @@ export function registerChemicalTasks(context: vscode.ExtensionContext, lspPath:
 
         // === Run Task ===
         const runDef: vscode.TaskDefinition = { type: CHEMICAL_TYPE, task: 'run' };
-        const runExec = new vscode.ProcessExecution(path.join(wsFolder, exeName), [], {
+        const runExec = new vscode.ProcessExecution(path.join(wsFolder, finalOutput), [], {
           cwd: wsFolder
         });
         const runTask = new vscode.Task(
