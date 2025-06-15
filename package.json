@@ -104,7 +104,8 @@
       {
         "command": "run-button.debug",
         "title": "Run",
-        "icon": "$(debug-start)"
+        "icon": "$(debug-start)",
+        "enablement": "!chemical:isRunning"
       }
     ],
     "configuration": {

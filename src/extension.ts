@@ -675,31 +675,31 @@ export function activate(context: ExtensionContext) {
     vscode.commands.registerCommand("run-button.debug", async () => {
         if (isChemicalTaskRunning) return; // Prevent re-entry
         isChemicalTaskRunning = true;
-        updateRunButtonVisibility(context, RunButtonStatus.Running);
+        await updateRunButtonVisibility(context, RunButtonStatus.Running);
 
         try {
-        const tasks = await vscode.tasks.fetchTasks({ type: "chemical" });
-        const build = tasks.find(t => t.definition.task === 'build');
-        if (!build) {
-            vscode.window.showErrorMessage('Cannot find Chemical build task.');
-            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-            isChemicalTaskRunning = false;
-            return;
-        }
-
-        const taskExecution = await vscode.tasks.executeTask(build);
-
-        const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
-            if (e.execution.task === build) {
-            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-            isChemicalTaskRunning = false;
-            disposable.dispose();
+            const tasks = await vscode.tasks.fetchTasks({ type: "chemical" });
+            const build = tasks.find(t => t.definition.task === 'build');
+            if (!build) {
+                vscode.window.showErrorMessage('Cannot find Chemical build task.');
+                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+                isChemicalTaskRunning = false;
+                return;
             }
-        });
+
+            const taskExecution = await vscode.tasks.executeTask(build);
+
+            const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+                if (e.execution.task === build) {
+                    updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+                    isChemicalTaskRunning = false;
+                    disposable.dispose();
+                }
+            });
         } catch (err) {
-        vscode.window.showErrorMessage('Failed to run build task.');
-        updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-        isChemicalTaskRunning = false;
+            vscode.window.showErrorMessage('Failed to run build task.');
+            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+            isChemicalTaskRunning = false;
         }
     })
     );
@@ -742,7 +742,12 @@ enum RunButtonStatus {
 }
 
 function updateRunButtonVisibility(context, status: RunButtonStatus) {
-
+  // sets the context key 'chemical:isRunning' to true/false
+  return vscode.commands.executeCommand(
+    'setContext',
+    'chemical:isRunning',
+    status === RunButtonStatus.Running
+  );
 }
 
 export function deactivate() {
