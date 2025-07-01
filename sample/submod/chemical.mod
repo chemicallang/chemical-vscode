@@ -1,0 +1,3 @@
+module submod
+
+source "src"

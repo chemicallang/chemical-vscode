@@ -2,7 +2,7 @@
   "name": "chemical-vscode",
   "displayName": "Chemical",
   "description": "Extension providing Chemical Programming Language Support, LSP Client for Chemical's LSP Server",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "publisher": "chemical",
   "license": "SEE LICENSE IN LICENSE",
   "icon": "./icon.png",
@@ -53,9 +53,9 @@
           ".ch"
         ],
         "configuration": "./chemical.configuration.json",
-        "icon" : {
-            "light" : "./icons/chemical.icon.svg",
-            "dark" : "./icons/chemical.icon.svg"
+        "icon": {
+          "light": "./icons/chemical.icon.svg",
+          "dark": "./icons/chemical.icon.svg"
         }
       },
       {
@@ -67,9 +67,9 @@
           ".lab"
         ],
         "configuration": "./chemical.configuration.json",
-        "icon" : {
-            "light" : "./icons/build.lab.icon.svg",
-            "dark" : "./icons/build.lab.icon.svg"
+        "icon": {
+          "light": "./icons/build.lab.icon.svg",
+          "dark": "./icons/build.lab.icon.svg"
         }
       },
       {
@@ -81,9 +81,9 @@
           "chemical.mod"
         ],
         "configuration": "./chemical.configuration.json",
-        "icon" : {
-            "light" : "./icons/chemical.mod.icon.svg",
-            "dark" : "./icons/chemical.mod.icon.svg"
+        "icon": {
+          "light": "./icons/chemical.mod.icon.svg",
+          "dark": "./icons/chemical.mod.icon.svg"
         }
       }
     ],
@@ -117,7 +117,2140 @@
           "description": "Override path to bundled Chemical compiler (lsp.exe)"
         }
       }
-    }
+    },
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "MarkupItalic": [
+            "markup.italic"
+          ],
+          "MarkupItalicMarkdown": [
+            "markup.italic.markdown"
+          ],
+          "MarkupBold": [
+            "markup.bold"
+          ],
+          "MarkupBoldMarkdown": [
+            "markup.bold.markdown"
+          ],
+          "MarkupHeading": [
+            "markup.heading"
+          ],
+          "MarkupHeadingSetext": [
+            "markup.heading.setext"
+          ],
+          "MarkupHeadingSetext1Markdown": [
+            "markup.heading.setext.1.markdown"
+          ],
+          "MarkupHeadingSetext2Markdown": [
+            "markup.heading.setext.2.markdown"
+          ],
+          "MarkupHeadingMarkdown": [
+            "markup.heading.markdown"
+          ],
+          "MarkupStrikethrough": [
+            "markup.strikethrough"
+          ],
+          "MarkupInserted": [
+            "markup.inserted"
+          ],
+          "MarkupInsertedDiff": [
+            "markup.inserted.diff"
+          ],
+          "MarkupInsertedGit_gutter": [
+            "markup.inserted.git_gutter"
+          ],
+          "MarkupDeleted": [
+            "markup.deleted"
+          ],
+          "MarkupDeletedDiff": [
+            "markup.deleted.diff"
+          ],
+          "MarkupDeletedGit_gutter": [
+            "markup.deleted.git_gutter"
+          ],
+          "MarkupInlineRaw": [
+            "markup.inline.raw"
+          ],
+          "MarkupInlineRawMarkdown": [
+            "markup.inline.raw.markdown"
+          ],
+          "MarkupInlineRawStringMarkdown": [
+            "markup.inline.raw.string.markdown"
+          ],
+          "MarkupChanged": [
+            "markup.changed"
+          ],
+          "MarkupChangedDiff": [
+            "markup.changed.diff"
+          ],
+          "MarkupChangedGit_gutter": [
+            "markup.changed.git_gutter"
+          ],
+          "MarkupUnderline": [
+            "markup.underline"
+          ],
+          "MarkupUnderlineLinkMarkdown": [
+            "markup.underline.link.markdown"
+          ],
+          "MarkupUnderlineLinkImageMarkdown": [
+            "markup.underline.link.image.markdown"
+          ],
+          "MarkupList": [
+            "markup.list"
+          ],
+          "MarkupListUnnumberedMarkdown": [
+            "markup.list.unnumbered.markdown"
+          ],
+          "MarkupListNumberedMarkdown": [
+            "markup.list.numbered.markdown"
+          ],
+          "MarkupListAsciidoc": [
+            "markup.list.asciidoc"
+          ],
+          "MarkupQuote": [
+            "markup.quote"
+          ],
+          "MarkupQuoteMarkdown": [
+            "markup.quote.markdown"
+          ],
+          "MarkupOtherUrlAsciidoc": [
+            "markup.other.url.asciidoc"
+          ],
+          "MarkupError": [
+            "markup.error"
+          ],
+          "MarkupOutput": [
+            "markup.output"
+          ],
+          "MarkupRaw": [
+            "markup.raw"
+          ],
+          "MarkupRawMonospaceAsciidoc": [
+            "markup.raw.monospace.asciidoc"
+          ],
+          "MarkupPrompt": [
+            "markup.prompt"
+          ],
+          "MarkupTraceback": [
+            "markup.traceback"
+          ],
+          "MarkupHeadingPunctuationDefinitionHeading": [
+            "markup.heading punctuation.definition.heading"
+          ],
+          "MarkupLinkAsciidoc": [
+            "markup.link.asciidoc"
+          ],
+          "Entity": [
+            "entity"
+          ],
+          "EntityNameFunction": [
+            "entity.name.function"
+          ],
+          "EntityNameFunctionPreprocessor": [
+            "entity.name.function.preprocessor"
+          ],
+          "EntityNameFunctionXi": [
+            "entity.name.function.xi"
+          ],
+          "EntityNameType": [
+            "entity.name.type"
+          ],
+          "EntityNameTypeModule": [
+            "entity.name.type.module"
+          ],
+          "EntityNameTypeNamespace": [
+            "entity.name.type.namespace"
+          ],
+          "EntityNameTypeClass": [
+            "entity.name.type.class"
+          ],
+          "EntityNameNamespace": [
+            "entity.name.namespace"
+          ],
+          "EntityNameTag": [
+            "entity.name.tag"
+          ],
+          "EntityNameTagCss": [
+            "entity.name.tag.css"
+          ],
+          "EntityNameTagLess": [
+            "entity.name.tag.less"
+          ],
+          "EntityNameTagStyle": [
+            "entity.name.tag.style"
+          ],
+          "EntityNameTagScript": [
+            "entity.name.tag.script"
+          ],
+          "EntityNameScopeResolution": [
+            "entity.name.scope-resolution"
+          ],
+          "EntityNameScopeResolutionFunctionCall": [
+            "entity.name.scope-resolution.function.call"
+          ],
+          "EntityNameScopeResolutionFunctionDefinition": [
+            "entity.name.scope-resolution.function.definition"
+          ],
+          "EntityNameClass": [
+            "entity.name.class"
+          ],
+          "EntityNameClassIdentifierNamespaceType": [
+            "entity.name.class.identifier.namespace.type"
+          ],
+          "EntityNameClassXi": [
+            "entity.name.class.xi"
+          ],
+          "EntityNameOperator": [
+            "entity.name.operator"
+          ],
+          "EntityNameOperatorCustomLiteral": [
+            "entity.name.operator.custom-literal"
+          ],
+          "EntityNameLabel": [
+            "entity.name.label"
+          ],
+          "EntityNameLabelCs": [
+            "entity.name.label.cs"
+          ],
+          "EntityNameVariable": [
+            "entity.name.variable"
+          ],
+          "EntityNameVariableLocalCs": [
+            "entity.name.variable.local.cs"
+          ],
+          "EntityNameVariableParameterCs": [
+            "entity.name.variable.parameter.cs"
+          ],
+          "EntityNameVariableParameterPhp": [
+            "entity.name.variable.parameter.php"
+          ],
+          "EntityNameVariableFieldCs": [
+            "entity.name.variable.field.cs"
+          ],
+          "EntityNameSection": [
+            "entity.name.section"
+          ],
+          "EntityNameSectionMarkdown": [
+            "entity.name.section.markdown"
+          ],
+          "EntityNameSelector": [
+            "entity.name.selector"
+          ],
+          "EntityNameFilenameFindInFiles": [
+            "entity.name.filename.find-in-files"
+          ],
+          "EntityNameException": [
+            "entity.name.exception"
+          ],
+          "EntityNameLifetimeRust": [
+            "entity.name.lifetime.rust"
+          ],
+          "EntityNameGotoLabelPhp": [
+            "entity.name.goto-label.php"
+          ],
+          "EntityNamePackageGo": [
+            "entity.name.package.go"
+          ],
+          "EntityOtherInheritedClass": [
+            "entity.other.inherited-class"
+          ],
+          "EntityOtherAttributeName": [
+            "entity.other.attribute-name"
+          ],
+          "EntityOtherAttributeNameClassCss": [
+            "entity.other.attribute-name.class.css"
+          ],
+          "EntityOtherAttributeNameId": [
+            "entity.other.attribute-name.id"
+          ],
+          "EntityOtherAttributeNameIdCss": [
+            "entity.other.attribute-name.id.css"
+          ],
+          "EntityOtherAttributeNameParentSelectorCss": [
+            "entity.other.attribute-name.parent-selector.css"
+          ],
+          "EntityOtherAttributeNameParentLess": [
+            "entity.other.attribute-name.parent.less"
+          ],
+          "EntityOtherAttributeNamePseudoElement": [
+            "entity.other.attribute-name.pseudo-element"
+          ],
+          "EntityOtherAttributeNamePseudoElementCss": [
+            "entity.other.attribute-name.pseudo-element.css"
+          ],
+          "EntityOtherAttributeNameScss": [
+            "entity.other.attribute-name.scss"
+          ],
+          "EntityOtherAttributeNameHtml": [
+            "entity.other.attribute-name.html"
+          ],
+          "EntityOtherAttributeNamePseudoClass": [
+            "entity.other.attribute-name.pseudo-class"
+          ],
+          "EntityOtherAttribute": [
+            "entity.other.attribute"
+          ],
+          "EntityOtherAliasPhp": [
+            "entity.other.alias.php"
+          ],
+          "EntityGlobalClojure": [
+            "entity.global.clojure"
+          ],
+          "Support": [
+            "support"
+          ],
+          "SupportFunction": [
+            "support.function"
+          ],
+          "SupportFunctionGitRebase": [
+            "support.function.git-rebase"
+          ],
+          "SupportFunctionAnyMethod": [
+            "support.function.any-method"
+          ],
+          "SupportFunctionConstruct": [
+            "support.function.construct"
+          ],
+          "SupportFunctionStdRust": [
+            "support.function.std.rust"
+          ],
+          "SupportFunctionConsole": [
+            "support.function.console"
+          ],
+          "SupportClass": [
+            "support.class"
+          ],
+          "SupportClassMathBlockEnvironmentLatex": [
+            "support.class.math.block.environment.latex"
+          ],
+          "SupportType": [
+            "support.type"
+          ],
+          "SupportTypePropertyName": [
+            "support.type.property-name"
+          ],
+          "SupportTypePropertyNameJson": [
+            "support.type.property-name.json"
+          ],
+          "SupportTypePropertyNameCss": [
+            "support.type.property-name.css"
+          ],
+          "SupportTypePropertyNameToml": [
+            "support.type.property-name.toml"
+          ],
+          "SupportTypePropertyNameTableToml": [
+            "support.type.property-name.table.toml"
+          ],
+          "SupportTypePropertyNameArrayToml": [
+            "support.type.property-name.array.toml"
+          ],
+          "SupportTypePropertyNameJsonPunctuation": [
+            "support.type.property-name.json punctuation"
+          ],
+          "SupportTypeVendoredPropertyName": [
+            "support.type.vendored.property-name"
+          ],
+          "SupportTypeVendoredPropertyNameCss": [
+            "support.type.vendored.property-name.css"
+          ],
+          "SupportTypeObjectHlsl": [
+            "support.type.object.hlsl"
+          ],
+          "SupportTypeObjectModule": [
+            "support.type.object.module"
+          ],
+          "SupportTypeObjectConsole": [
+            "support.type.object.console"
+          ],
+          "SupportTypeObjectDom": [
+            "support.type.object.dom"
+          ],
+          "SupportTypeObjectRwHlsl": [
+            "support.type.object.rw.hlsl"
+          ],
+          "SupportTypeException": [
+            "support.type.exception"
+          ],
+          "SupportTypePosixReservedC": [
+            "support.type.posix-reserved.c"
+          ],
+          "SupportTypePosixReservedCpp": [
+            "support.type.posix-reserved.cpp"
+          ],
+          "SupportTypePython": [
+            "support.type.python"
+          ],
+          "SupportTypePrimitive": [
+            "support.type.primitive"
+          ],
+          "SupportTypePrimitiveTs": [
+            "support.type.primitive.ts"
+          ],
+          "SupportTypePrimitiveTsx": [
+            "support.type.primitive.tsx"
+          ],
+          "SupportTypeBuiltinTs": [
+            "support.type.builtin.ts"
+          ],
+          "SupportTypeBuiltinTsx": [
+            "support.type.builtin.tsx"
+          ],
+          "SupportTypeTypeFlowtype": [
+            "support.type.type.flowtype"
+          ],
+          "SupportTypePreludeElm": [
+            "support.type.prelude.elm"
+          ],
+          "SupportTypeTextureHlsl": [
+            "support.type.texture.hlsl"
+          ],
+          "SupportTypeSamplerHlsl": [
+            "support.type.sampler.hlsl"
+          ],
+          "SupportTypeFxHlsl": [
+            "support.type.fx.hlsl"
+          ],
+          "SupportTypeSwift": [
+            "support.type.swift"
+          ],
+          "SupportTypeVbAsp": [
+            "support.type.vb.asp"
+          ],
+          "SupportConstant": [
+            "support.constant"
+          ],
+          "SupportConstantPropertyValue": [
+            "support.constant.property-value"
+          ],
+          "SupportConstantPropertyValueScss": [
+            "support.constant.property-value.scss"
+          ],
+          "SupportConstantPropertyValueCss": [
+            "support.constant.property-value.css"
+          ],
+          "SupportConstantFontName": [
+            "support.constant.font-name"
+          ],
+          "SupportConstantColor": [
+            "support.constant.color"
+          ],
+          "SupportConstantColorW3cStandardColorNameCss": [
+            "support.constant.color.w3c-standard-color-name.css"
+          ],
+          "SupportConstantColorW3cStandardColorNameScss": [
+            "support.constant.color.w3c-standard-color-name.scss"
+          ],
+          "SupportConstantMediaType": [
+            "support.constant.media-type"
+          ],
+          "SupportConstantMedia": [
+            "support.constant.media"
+          ],
+          "SupportConstantHandlebars": [
+            "support.constant.handlebars"
+          ],
+          "SupportConstantMath": [
+            "support.constant.math"
+          ],
+          "SupportConstantJson": [
+            "support.constant.json"
+          ],
+          "SupportConstantDom": [
+            "support.constant.dom"
+          ],
+          "SupportConstantEdge": [
+            "support.constant.edge"
+          ],
+          "SupportConstantPropertyMath": [
+            "support.constant.property.math"
+          ],
+          "SupportConstantCoreRust": [
+            "support.constant.core.rust"
+          ],
+          "SupportConstantCorePhp": [
+            "support.constant.core.php"
+          ],
+          "SupportConstantExtPhp": [
+            "support.constant.ext.php"
+          ],
+          "SupportConstantStdPhp": [
+            "support.constant.std.php"
+          ],
+          "SupportConstantParserTokenPhp": [
+            "support.constant.parser-token.php"
+          ],
+          "SupportConstantElm": [
+            "support.constant.elm"
+          ],
+          "SupportVariable": [
+            "support.variable"
+          ],
+          "SupportVariableMagicPython": [
+            "support.variable.magic.python"
+          ],
+          "SupportVariableProperty": [
+            "support.variable.property"
+          ],
+          "SupportVariablePropertyProcess": [
+            "support.variable.property.process"
+          ],
+          "SupportVariablePropertyDom": [
+            "support.variable.property.dom"
+          ],
+          "SupportVariableObjectProcess": [
+            "support.variable.object.process"
+          ],
+          "SupportVariableObjectNode": [
+            "support.variable.object.node"
+          ],
+          "SupportVariableDom": [
+            "support.variable.dom"
+          ],
+          "SupportVariableSemanticHlsl": [
+            "support.variable.semantic.hlsl"
+          ],
+          "SupportOtherParenthesisRegexp": [
+            "support.other.parenthesis.regexp"
+          ],
+          "SupportOtherVariable": [
+            "support.other.variable"
+          ],
+          "SupportOtherNamespaceUsePhp": [
+            "support.other.namespace.use.php"
+          ],
+          "SupportOtherNamespaceUseAsPhp": [
+            "support.other.namespace.use-as.php"
+          ],
+          "SupportOtherNamespacePhp": [
+            "support.other.namespace.php"
+          ],
+          "SupportOtherPhp": [
+            "support.other.php"
+          ],
+          "SupportModuleNode": [
+            "support.module.node"
+          ],
+          "SupportTokenDecoratorPython": [
+            "support.token.decorator.python"
+          ],
+          "Keyword": [
+            "keyword"
+          ],
+          "KeywordControl": [
+            "keyword.control"
+          ],
+          "KeywordControlAnchorRegexp": [
+            "keyword.control.anchor.regexp"
+          ],
+          "KeywordControlXi": [
+            "keyword.control.xi"
+          ],
+          "KeywordOperator": [
+            "keyword.operator"
+          ],
+          "KeywordOperatorNew": [
+            "keyword.operator.new"
+          ],
+          "KeywordOperatorNewCpp": [
+            "keyword.operator.new.cpp"
+          ],
+          "KeywordOperatorLogical": [
+            "keyword.operator.logical"
+          ],
+          "KeywordOperatorLogicalPython": [
+            "keyword.operator.logical.python"
+          ],
+          "KeywordOperatorLogicalPhp": [
+            "keyword.operator.logical.php"
+          ],
+          "KeywordOperatorQuantifierRegexp": [
+            "keyword.operator.quantifier.regexp"
+          ],
+          "KeywordOperatorExpression": [
+            "keyword.operator.expression"
+          ],
+          "KeywordOperatorExpressionInstanceof": [
+            "keyword.operator.expression.instanceof"
+          ],
+          "KeywordOperatorExpressionImport": [
+            "keyword.operator.expression.import"
+          ],
+          "KeywordOperatorExpressionKeyof": [
+            "keyword.operator.expression.keyof"
+          ],
+          "KeywordOperatorExpressionDelete": [
+            "keyword.operator.expression.delete"
+          ],
+          "KeywordOperatorExpressionIn": [
+            "keyword.operator.expression.in"
+          ],
+          "KeywordOperatorExpressionOf": [
+            "keyword.operator.expression.of"
+          ],
+          "KeywordOperatorExpressionTypeof": [
+            "keyword.operator.expression.typeof"
+          ],
+          "KeywordOperatorExpressionVoid": [
+            "keyword.operator.expression.void"
+          ],
+          "KeywordOperatorExpressionIs": [
+            "keyword.operator.expression.is"
+          ],
+          "KeywordOperatorCast": [
+            "keyword.operator.cast"
+          ],
+          "KeywordOperatorSizeof": [
+            "keyword.operator.sizeof"
+          ],
+          "KeywordOperatorSizeofC": [
+            "keyword.operator.sizeof.c"
+          ],
+          "KeywordOperatorSizeofCpp": [
+            "keyword.operator.sizeof.cpp"
+          ],
+          "KeywordOperatorNegationRegexp": [
+            "keyword.operator.negation.regexp"
+          ],
+          "KeywordOperatorOrRegexp": [
+            "keyword.operator.or.regexp"
+          ],
+          "KeywordOperatorPlusExponent": [
+            "keyword.operator.plus.exponent"
+          ],
+          "KeywordOperatorMinusExponent": [
+            "keyword.operator.minus.exponent"
+          ],
+          "KeywordOperatorNoexcept": [
+            "keyword.operator.noexcept"
+          ],
+          "KeywordOperatorAlignof": [
+            "keyword.operator.alignof"
+          ],
+          "KeywordOperatorTypeid": [
+            "keyword.operator.typeid"
+          ],
+          "KeywordOperatorAlignas": [
+            "keyword.operator.alignas"
+          ],
+          "KeywordOperatorInstanceof": [
+            "keyword.operator.instanceof"
+          ],
+          "KeywordOperatorInstanceofJava": [
+            "keyword.operator.instanceof.java"
+          ],
+          "KeywordOperatorWordlike": [
+            "keyword.operator.wordlike"
+          ],
+          "KeywordOperatorDelete": [
+            "keyword.operator.delete"
+          ],
+          "KeywordOperatorDeleteCpp": [
+            "keyword.operator.delete.cpp"
+          ],
+          "KeywordOperatorLess": [
+            "keyword.operator.less"
+          ],
+          "KeywordOperatorClass": [
+            "keyword.operator.class"
+          ],
+          "KeywordOperatorWord": [
+            "keyword.operator.word"
+          ],
+          "KeywordOperatorBitwise": [
+            "keyword.operator.bitwise"
+          ],
+          "KeywordOperatorBitwiseShiftC": [
+            "keyword.operator.bitwise.shift.c"
+          ],
+          "KeywordOperatorBitwiseShiftCpp": [
+            "keyword.operator.bitwise.shift.cpp"
+          ],
+          "KeywordOperatorBitwisePhp": [
+            "keyword.operator.bitwise.php"
+          ],
+          "KeywordOperatorChannel": [
+            "keyword.operator.channel"
+          ],
+          "KeywordOperatorCss": [
+            "keyword.operator.css"
+          ],
+          "KeywordOperatorScss": [
+            "keyword.operator.scss"
+          ],
+          "KeywordOperatorTernary": [
+            "keyword.operator.ternary"
+          ],
+          "KeywordOperatorOptional": [
+            "keyword.operator.optional"
+          ],
+          "KeywordOperatorMiscRust": [
+            "keyword.operator.misc.rust"
+          ],
+          "KeywordOperatorSigilRust": [
+            "keyword.operator.sigil.rust"
+          ],
+          "KeywordOperatorArithmetic": [
+            "keyword.operator.arithmetic"
+          ],
+          "KeywordOperatorArithmeticPhp": [
+            "keyword.operator.arithmetic.php"
+          ],
+          "KeywordOperatorArithmeticGo": [
+            "keyword.operator.arithmetic.go"
+          ],
+          "KeywordOperatorArithmeticC": [
+            "keyword.operator.arithmetic.c"
+          ],
+          "KeywordOperatorArithmeticCpp": [
+            "keyword.operator.arithmetic.cpp"
+          ],
+          "KeywordOperatorComparison": [
+            "keyword.operator.comparison"
+          ],
+          "KeywordOperatorComparisonC": [
+            "keyword.operator.comparison.c"
+          ],
+          "KeywordOperatorComparisonCpp": [
+            "keyword.operator.comparison.cpp"
+          ],
+          "KeywordOperatorComparisonPhp": [
+            "keyword.operator.comparison.php"
+          ],
+          "KeywordOperatorDecrement": [
+            "keyword.operator.decrement"
+          ],
+          "KeywordOperatorDecrementC": [
+            "keyword.operator.decrement.c"
+          ],
+          "KeywordOperatorDecrementCpp": [
+            "keyword.operator.decrement.cpp"
+          ],
+          "KeywordOperatorIncrement": [
+            "keyword.operator.increment"
+          ],
+          "KeywordOperatorIncrementC": [
+            "keyword.operator.increment.c"
+          ],
+          "KeywordOperatorIncrementCpp": [
+            "keyword.operator.increment.cpp"
+          ],
+          "KeywordOperatorRelational": [
+            "keyword.operator.relational"
+          ],
+          "KeywordOperatorAssignment": [
+            "keyword.operator.assignment"
+          ],
+          "KeywordOperatorAssignmentC": [
+            "keyword.operator.assignment.c"
+          ],
+          "KeywordOperatorAssignmentCpp": [
+            "keyword.operator.assignment.cpp"
+          ],
+          "KeywordOperatorAssignmentCompound": [
+            "keyword.operator.assignment.compound"
+          ],
+          "KeywordOperatorAssignmentCompoundJs": [
+            "keyword.operator.assignment.compound.js"
+          ],
+          "KeywordOperatorAssignmentCompoundTs": [
+            "keyword.operator.assignment.compound.ts"
+          ],
+          "KeywordOperatorAssignmentGo": [
+            "keyword.operator.assignment.go"
+          ],
+          "KeywordOperatorC": [
+            "keyword.operator.c"
+          ],
+          "KeywordOperatorCpp": [
+            "keyword.operator.cpp"
+          ],
+          "KeywordOperatorErrorControlPhp": [
+            "keyword.operator.error-control.php"
+          ],
+          "KeywordOperatorTypePhp": [
+            "keyword.operator.type.php"
+          ],
+          "KeywordOperatorRegexpPhp": [
+            "keyword.operator.regexp.php"
+          ],
+          "KeywordOperatorHeredocPhp": [
+            "keyword.operator.heredoc.php"
+          ],
+          "KeywordOperatorNowdocPhp": [
+            "keyword.operator.nowdoc.php"
+          ],
+          "KeywordOperatorModule": [
+            "keyword.operator.module"
+          ],
+          "KeywordOperatorAddressGo": [
+            "keyword.operator.address.go"
+          ],
+          "KeywordOtherUnit": [
+            "keyword.other.unit"
+          ],
+          "KeywordOtherUsing": [
+            "keyword.other.using"
+          ],
+          "KeywordOtherDirectiveUsing": [
+            "keyword.other.directive.using"
+          ],
+          "KeywordOtherOperator": [
+            "keyword.other.operator"
+          ],
+          "KeywordOtherSpecialMethod": [
+            "keyword.other.special-method"
+          ],
+          "KeywordOtherSpecialMethodRuby": [
+            "keyword.other.special-method.ruby"
+          ],
+          "KeywordOtherDMLSql": [
+            "keyword.other.DML.sql"
+          ],
+          "KeywordOtherImportant": [
+            "keyword.other.important"
+          ],
+          "KeywordOtherNew": [
+            "keyword.other.new"
+          ],
+          "KeywordOtherTypePhp": [
+            "keyword.other.type.php"
+          ],
+          "KeywordOtherArrayPhpdocPhp": [
+            "keyword.other.array.phpdoc.php"
+          ],
+          "KeywordOtherTemplateBegin": [
+            "keyword.other.template.begin"
+          ],
+          "KeywordOtherTemplateEnd": [
+            "keyword.other.template.end"
+          ],
+          "KeywordOtherSubstitutionBegin": [
+            "keyword.other.substitution.begin"
+          ],
+          "KeywordOtherSubstitutionEnd": [
+            "keyword.other.substitution.end"
+          ],
+          "MetaEmbedded": [
+            "meta.embedded"
+          ],
+          "MetaEmbeddedAssembly": [
+            "meta.embedded.assembly"
+          ],
+          "MetaDiff": [
+            "meta.diff"
+          ],
+          "MetaDiffHeader": [
+            "meta.diff.header"
+          ],
+          "MetaDiffHeaderFromFile": [
+            "meta.diff.header.from-file"
+          ],
+          "MetaDiffHeaderToFile": [
+            "meta.diff.header.to-file"
+          ],
+          "MetaDiffRange": [
+            "meta.diff.range"
+          ],
+          "MetaDiffIndex": [
+            "meta.diff.index"
+          ],
+          "MetaTemplateExpression": [
+            "meta.template.expression"
+          ],
+          "MetaObjectLiteralKey": [
+            "meta.object-literal.key"
+          ],
+          "MetaPreprocessor": [
+            "meta.preprocessor"
+          ],
+          "MetaPreprocessorString": [
+            "meta.preprocessor.string"
+          ],
+          "MetaPreprocessorNumeric": [
+            "meta.preprocessor.numeric"
+          ],
+          "MetaPreprocessorAtRuleKeywordControlAtRule": [
+            "meta.preprocessor.at-rule keyword.control.at-rule"
+          ],
+          "MetaTypeCastExpr": [
+            "meta.type.cast.expr"
+          ],
+          "MetaTypeNewExpr": [
+            "meta.type.new.expr"
+          ],
+          "MetaDefinitionVariableName": [
+            "meta.definition.variable.name"
+          ],
+          "MetaDefinitionVariableNameJava": [
+            "meta.definition.variable.name.java"
+          ],
+          "MetaDefinitionVariableNameGroovy": [
+            "meta.definition.variable.name.groovy"
+          ],
+          "MetaDefinitionClassInheritedClassesGroovy": [
+            "meta.definition.class.inherited.classes.groovy"
+          ],
+          "MetaStructureDictionaryKeyPython": [
+            "meta.structure.dictionary.key.python"
+          ],
+          "MetaStructureDictionaryJsonStringQuotedDoubleJson": [
+            "meta.structure.dictionary.json string.quoted.double.json"
+          ],
+          "MetaTag": [
+            "meta.tag"
+          ],
+          "MetaTagSgmlDoctype": [
+            "meta.tag.sgml.doctype"
+          ],
+          "MetaTagSgmlDoctypeString": [
+            "meta.tag.sgml.doctype string"
+          ],
+          "MetaTagSgmlDoctypeEntityNameTag": [
+            "meta.tag.sgml.doctype entity.name.tag"
+          ],
+          "MetaTagSgmlDeclarationDoctype": [
+            "meta.tag.sgml-declaration.doctype"
+          ],
+          "MetaTagInlineSource": [
+            "meta.tag.inline source"
+          ],
+          "MetaTagOther": [
+            "meta.tag.other"
+          ],
+          "MetaTagBlockScript": [
+            "meta.tag.block.script"
+          ],
+          "MetaTagSgmlPunctuationDefinitionTagHtml": [
+            "meta.tag.sgml punctuation.definition.tag.html"
+          ],
+          "MetaSelector": [
+            "meta.selector"
+          ],
+          "MetaSelectorCssEntityNameTag": [
+            "meta.selector.css entity.name.tag"
+          ],
+          "MetaSelectorCssEntityOtherAttributeNameId": [
+            "meta.selector.css entity.other.attribute-name.id"
+          ],
+          "MetaSelectorCssEntityOtherAttributeNameClass": [
+            "meta.selector.css entity.other.attribute-name.class"
+          ],
+          "MetaSeparator": [
+            "meta.separator"
+          ],
+          "MetaRequire": [
+            "meta.require"
+          ],
+          "MetaLink": [
+            "meta.link"
+          ],
+          "MetaFunctionCall": [
+            "meta.function-call"
+          ],
+          "MetaFunctionCallObject": [
+            "meta.function-call.object"
+          ],
+          "MetaFunctionCallObjectPhp": [
+            "meta.function-call.object.php"
+          ],
+          "MetaFunctionCallGenericPython": [
+            "meta.function-call.generic.python"
+          ],
+          "MetaFunctionCallPhp": [
+            "meta.function-call.php"
+          ],
+          "MetaFunctionCallStaticPhp": [
+            "meta.function-call.static.php"
+          ],
+          "MetaResultLinePrefixContextLinePrefixSearch": [
+            "meta.resultLinePrefix.contextLinePrefix.search"
+          ],
+          "MetaDoctype": [
+            "meta.doctype"
+          ],
+          "MetaTagPunctuationDefinitionString": [
+            "meta.tag punctuation.definition.string"
+          ],
+          "MetaTagStringSourcePunctuation": [
+            "meta.tag string -source -punctuation"
+          ],
+          "MetaBraceErbHtml": [
+            "meta.brace.erb.html"
+          ],
+          "MetaBraceSquare": [
+            "meta.brace.square"
+          ],
+          "MetaTocListId": [
+            "meta.toc-list.id"
+          ],
+          "MetaSelectorEntity": [
+            "meta.selector entity"
+          ],
+          "MetaSelectorEntityOtherAttributeNameId": [
+            "meta.selector entity.other.attribute-name.id"
+          ],
+          "MetaPropertyGroupSupportConstantPropertyValue": [
+            "meta.property-group support.constant.property-value"
+          ],
+          "MetaPropertyGroupSupportConstantPropertyValueCss": [
+            "meta.property-group support.constant.property-value.css"
+          ],
+          "MetaPropertyValueSupportConstantPropertyValue": [
+            "meta.property-value support.constant.property-value"
+          ],
+          "MetaPropertyValueSupportConstantPropertyValueCss": [
+            "meta.property-value support.constant.property-value.css"
+          ],
+          "MetaPropertyValueSupportConstantNamedColorCss": [
+            "meta.property-value support.constant.named-color.css"
+          ],
+          "MetaTagEntity": [
+            "meta.tag entity"
+          ],
+          "MetaTagEntityOtherAttributeName": [
+            "meta.tag entity.other.attribute-name"
+          ],
+          "MetaSelectorEntityPunctuation": [
+            "meta.selector entity punctuation"
+          ],
+          "MetaPropertyName": [
+            "meta.property-name"
+          ],
+          "MetaPropertyValue": [
+            "meta.property-value"
+          ],
+          "MetaPropertyValueConstant": [
+            "meta.property-value constant"
+          ],
+          "MetaPropertyValueConstantOther": [
+            "meta.property-value constant.other"
+          ],
+          "MetaJsxChildren": [
+            "meta.jsx.children"
+          ],
+          "MetaJsxChildrenJs": [
+            "meta.jsx.children.js"
+          ],
+          "MetaConstructorArgumentCss": [
+            "meta.constructor.argument.css"
+          ],
+          "MetaBlockLevel": [
+            "meta.block-level"
+          ],
+          "MetaFunctionC": [
+            "meta.function.c"
+          ],
+          "MetaFunctionCpp": [
+            "meta.function.cpp"
+          ],
+          "MetaFunctionDecoratorPython": [
+            "meta.function.decorator.python"
+          ],
+          "MetaFunctionDecoratorIdentifierPython": [
+            "meta.function.decorator.identifier.python"
+          ],
+          "MetaMethodIdentifierJava": [
+            "meta.method.identifier.java"
+          ],
+          "MetaMethodBodyJava": [
+            "meta.method.body.java"
+          ],
+          "MetaMethodJava": [
+            "meta.method.java"
+          ],
+          "MetaMethodGroovy": [
+            "meta.method.groovy"
+          ],
+          "MetaMethodCallJava": [
+            "meta.method-call.java"
+          ],
+          "MetaInterfacePhp": [
+            "meta.interface.php"
+          ],
+          "MetaOtherTypePhpdocPhp": [
+            "meta.other.type.phpdoc.php"
+          ],
+          "MetaPropertyObject": [
+            "meta.property.object"
+          ],
+          "MetaSymbolClojure": [
+            "meta.symbol.clojure"
+          ],
+          "MetaArgumentsCoffee": [
+            "meta.arguments.coffee"
+          ],
+          "MetaScopePrerequisitesMakefile": [
+            "meta.scope.prerequisites.makefile"
+          ],
+          "Comment": [
+            "comment"
+          ],
+          "CommentBlockPreprocessor": [
+            "comment.block.preprocessor"
+          ],
+          "CommentBlockDocumentation": [
+            "comment.block.documentation"
+          ],
+          "CommentBlockDocumentationPunctuationDefinitionComment": [
+            "comment.block.documentation punctuation.definition.comment"
+          ],
+          "CommentDocumentation": [
+            "comment.documentation"
+          ],
+          "Storage": [
+            "storage"
+          ],
+          "StorageType": [
+            "storage.type"
+          ],
+          "StorageTypeCs": [
+            "storage.type.cs"
+          ],
+          "StorageTypeAnnotationJava": [
+            "storage.type.annotation.java"
+          ],
+          "StorageTypeAnnotationGroovy": [
+            "storage.type.annotation.groovy"
+          ],
+          "StorageTypeGenericJava": [
+            "storage.type.generic.java"
+          ],
+          "StorageTypeGenericCs": [
+            "storage.type.generic.cs"
+          ],
+          "StorageTypeGenericGroovy": [
+            "storage.type.generic.groovy"
+          ],
+          "StorageTypeJava": [
+            "storage.type.java"
+          ],
+          "StorageTypeObjectArrayJava": [
+            "storage.type.object.array.java"
+          ],
+          "StorageTypeObjectArrayGroovy": [
+            "storage.type.object.array.groovy"
+          ],
+          "StorageTypeModifierCs": [
+            "storage.type.modifier.cs"
+          ],
+          "StorageTypeVariableCs": [
+            "storage.type.variable.cs"
+          ],
+          "StorageTypePrimitiveArrayJava": [
+            "storage.type.primitive.array.java"
+          ],
+          "StorageTypePrimitiveArrayGroovy": [
+            "storage.type.primitive.array.groovy"
+          ],
+          "StorageTypePrimitiveJava": [
+            "storage.type.primitive.java"
+          ],
+          "StorageTypePrimitiveGroovy": [
+            "storage.type.primitive.groovy"
+          ],
+          "StorageTypeTokenJava": [
+            "storage.type.token.java"
+          ],
+          "StorageTypeGroovy": [
+            "storage.type.groovy"
+          ],
+          "StorageTypeParametersGroovy": [
+            "storage.type.parameters.groovy"
+          ],
+          "StorageTypeNumericGo": [
+            "storage.type.numeric.go"
+          ],
+          "StorageTypeByteGo": [
+            "storage.type.byte.go"
+          ],
+          "StorageTypeBooleanGo": [
+            "storage.type.boolean.go"
+          ],
+          "StorageTypeStringGo": [
+            "storage.type.string.go"
+          ],
+          "StorageTypeUintptrGo": [
+            "storage.type.uintptr.go"
+          ],
+          "StorageTypeErrorGo": [
+            "storage.type.error.go"
+          ],
+          "StorageTypeRuneGo": [
+            "storage.type.rune.go"
+          ],
+          "StorageTypeHaskell": [
+            "storage.type.haskell"
+          ],
+          "StorageTypePhp": [
+            "storage.type.php"
+          ],
+          "StorageModifier": [
+            "storage.modifier"
+          ],
+          "StorageModifierImportJava": [
+            "storage.modifier.import.java"
+          ],
+          "StorageModifierImportGroovy": [
+            "storage.modifier.import.groovy"
+          ],
+          "StorageModifierPackageJava": [
+            "storage.modifier.package.java"
+          ],
+          "StorageModifierLifetimeRust": [
+            "storage.modifier.lifetime.rust"
+          ],
+          "String": [
+            "string"
+          ],
+          "StringRegexp": [
+            "string.regexp"
+          ],
+          "StringQuotedDoubleHtml": [
+            "string.quoted.double.html"
+          ],
+          "StringQuotedDoubleXml": [
+            "string.quoted.double.xml"
+          ],
+          "StringQuotedDoubleHandlebars": [
+            "string.quoted.double.handlebars"
+          ],
+          "StringQuotedDoubleHtmlSource": [
+            "string.quoted.double.html source"
+          ],
+          "StringQuotedPug": [
+            "string.quoted.pug"
+          ],
+          "StringQuotedSingleYaml": [
+            "string.quoted.single.yaml"
+          ],
+          "StringQuotedSingleXml": [
+            "string.quoted.single.xml"
+          ],
+          "StringQuotedSingleHtml": [
+            "string.quoted.single.html"
+          ],
+          "StringQuotedSingleHandlebars": [
+            "string.quoted.single.handlebars"
+          ],
+          "StringCommentBufferedBlockPug": [
+            "string.comment.buffered.block.pug"
+          ],
+          "StringInterpolatedPug": [
+            "string.interpolated.pug"
+          ],
+          "StringUnquotedPlainInYaml": [
+            "string.unquoted.plain.in.yaml"
+          ],
+          "StringUnquotedPlainOutYaml": [
+            "string.unquoted.plain.out.yaml"
+          ],
+          "StringUnquotedBlockYaml": [
+            "string.unquoted.block.yaml"
+          ],
+          "StringUnquotedCdataXml": [
+            "string.unquoted.cdata.xml"
+          ],
+          "StringUnquotedHtml": [
+            "string.unquoted.html"
+          ],
+          "StringUnquotedAsciidoc": [
+            "string.unquoted.asciidoc"
+          ],
+          "StringOtherLink": [
+            "string.other.link"
+          ],
+          "StringOtherLinkTitleMarkdown": [
+            "string.other.link.title.markdown"
+          ],
+          "StringOtherLinkDescriptionMarkdown": [
+            "string.other.link.description.markdown"
+          ],
+          "StringTag": [
+            "string.tag"
+          ],
+          "StringValue": [
+            "string.value"
+          ],
+          "Punctuation": [
+            "punctuation"
+          ],
+          "PunctuationSeparatorNamespaceRuby": [
+            "punctuation.separator.namespace.ruby"
+          ],
+          "PunctuationSeparatorVariable": [
+            "punctuation.separator.variable"
+          ],
+          "PunctuationSeparatorContinuation": [
+            "punctuation.separator.continuation"
+          ],
+          "PunctuationSeparatorPipeUnison": [
+            "punctuation.separator.pipe.unison"
+          ],
+          "PunctuationSeparatorDelimiter": [
+            "punctuation.separator.delimiter"
+          ],
+          "PunctuationSeparatorDelimiterUnison": [
+            "punctuation.separator.delimiter.unison"
+          ],
+          "PunctuationSeparatorDelimiterPhp": [
+            "punctuation.separator.delimiter.php"
+          ],
+          "PunctuationSeparatorPeriodPython": [
+            "punctuation.separator.period.python"
+          ],
+          "PunctuationSeparatorPeriodJava": [
+            "punctuation.separator.period.java"
+          ],
+          "PunctuationSeparatorElementPython": [
+            "punctuation.separator.element.python"
+          ],
+          "PunctuationSeparatorKeyValue": [
+            "punctuation.separator.key-value"
+          ],
+          "PunctuationSeparatorListCommaCss": [
+            "punctuation.separator.list.comma.css"
+          ],
+          "PunctuationSeparatorC": [
+            "punctuation.separator.c"
+          ],
+          "PunctuationSeparatorCpp": [
+            "punctuation.separator.cpp"
+          ],
+          "PunctuationSeparatorArgumentsPython": [
+            "punctuation.separator.arguments.python"
+          ],
+          "PunctuationSeparatorColonPhp": [
+            "punctuation.separator.colon.php"
+          ],
+          "PunctuationSectionEmbedded": [
+            "punctuation.section.embedded"
+          ],
+          "PunctuationSectionEmbeddedBegin": [
+            "punctuation.section.embedded.begin"
+          ],
+          "PunctuationSectionEmbeddedBeginPhp": [
+            "punctuation.section.embedded.begin.php"
+          ],
+          "PunctuationSectionEmbeddedBeginRuby": [
+            "punctuation.section.embedded.begin.ruby"
+          ],
+          "PunctuationSectionEmbeddedEnd": [
+            "punctuation.section.embedded.end"
+          ],
+          "PunctuationSectionEmbeddedEndPhp": [
+            "punctuation.section.embedded.end.php"
+          ],
+          "PunctuationSectionEmbeddedEndRuby": [
+            "punctuation.section.embedded.end.ruby"
+          ],
+          "PunctuationSectionEmbeddedCoffee": [
+            "punctuation.section.embedded.coffee"
+          ],
+          "PunctuationSectionEmbeddedSourceStringSourcePunctuationSectionEmbedded": [
+            "punctuation.section.embedded -(source string source punctuation.section.embedded)"
+          ],
+          "PunctuationSectionBlockBeginBracketCurlyCpp": [
+            "punctuation.section.block.begin.bracket.curly.cpp"
+          ],
+          "PunctuationSectionBlockBeginBracketCurlyC": [
+            "punctuation.section.block.begin.bracket.curly.c"
+          ],
+          "PunctuationSectionBlockBeginJava": [
+            "punctuation.section.block.begin.java"
+          ],
+          "PunctuationSectionBlockEndBracketCurlyCpp": [
+            "punctuation.section.block.end.bracket.curly.cpp"
+          ],
+          "PunctuationSectionBlockEndBracketCurlyC": [
+            "punctuation.section.block.end.bracket.curly.c"
+          ],
+          "PunctuationSectionBlockEndJava": [
+            "punctuation.section.block.end.java"
+          ],
+          "PunctuationSectionParensBeginBracketRoundC": [
+            "punctuation.section.parens.begin.bracket.round.c"
+          ],
+          "PunctuationSectionParensEndBracketRoundC": [
+            "punctuation.section.parens.end.bracket.round.c"
+          ],
+          "PunctuationSectionParametersBeginBracketRoundC": [
+            "punctuation.section.parameters.begin.bracket.round.c"
+          ],
+          "PunctuationSectionParametersEndBracketRoundC": [
+            "punctuation.section.parameters.end.bracket.round.c"
+          ],
+          "PunctuationSectionMethodBeginJava": [
+            "punctuation.section.method.begin.java"
+          ],
+          "PunctuationSectionMethodBeginBracketCurlyJava": [
+            "punctuation.section.method.begin.bracket.curly.java"
+          ],
+          "PunctuationSectionMethodEndJava": [
+            "punctuation.section.method.end.java"
+          ],
+          "PunctuationSectionMethodEndBracketCurlyJava": [
+            "punctuation.section.method.end.bracket.curly.java"
+          ],
+          "PunctuationSectionClassBeginJava": [
+            "punctuation.section.class.begin.java"
+          ],
+          "PunctuationSectionClassBeginBracketCurlyJava": [
+            "punctuation.section.class.begin.bracket.curly.java"
+          ],
+          "PunctuationSectionClassEndJava": [
+            "punctuation.section.class.end.java"
+          ],
+          "PunctuationSectionClassEndBracketCurlyJava": [
+            "punctuation.section.class.end.bracket.curly.java"
+          ],
+          "PunctuationSectionInnerClassBeginJava": [
+            "punctuation.section.inner-class.begin.java"
+          ],
+          "PunctuationSectionInnerClassEndJava": [
+            "punctuation.section.inner-class.end.java"
+          ],
+          "PunctuationSectionArrayBeginPhp": [
+            "punctuation.section.array.begin.php"
+          ],
+          "PunctuationSectionArrayEndPhp": [
+            "punctuation.section.array.end.php"
+          ],
+          "PunctuationSectionScopeBeginPhp": [
+            "punctuation.section.scope.begin.php"
+          ],
+          "PunctuationSectionScopeEndPhp": [
+            "punctuation.section.scope.end.php"
+          ],
+          "PunctuationDefinitionListBeginMarkdown": [
+            "punctuation.definition.list.begin.markdown"
+          ],
+          "PunctuationDefinitionListBeginUnison": [
+            "punctuation.definition.list.begin.unison"
+          ],
+          "PunctuationDefinitionListBeginPython": [
+            "punctuation.definition.list.begin.python"
+          ],
+          "PunctuationDefinitionListEndUnison": [
+            "punctuation.definition.list.end.unison"
+          ],
+          "PunctuationDefinitionListEndPython": [
+            "punctuation.definition.list.end.python"
+          ],
+          "PunctuationDefinitionListMarkdown": [
+            "punctuation.definition.list.markdown"
+          ],
+          "PunctuationDefinitionTemplateExpression": [
+            "punctuation.definition.template-expression"
+          ],
+          "PunctuationDefinitionTemplateExpressionBegin": [
+            "punctuation.definition.template-expression.begin"
+          ],
+          "PunctuationDefinitionTemplateExpressionEnd": [
+            "punctuation.definition.template-expression.end"
+          ],
+          "PunctuationDefinitionTag": [
+            "punctuation.definition.tag"
+          ],
+          "PunctuationDefinitionTagHtml": [
+            "punctuation.definition.tag.html"
+          ],
+          "PunctuationDefinitionTagBegin": [
+            "punctuation.definition.tag.begin"
+          ],
+          "PunctuationDefinitionTagBeginHtml": [
+            "punctuation.definition.tag.begin.html"
+          ],
+          "PunctuationDefinitionTagBeginJs": [
+            "punctuation.definition.tag.begin.js"
+          ],
+          "PunctuationDefinitionTagEnd": [
+            "punctuation.definition.tag.end"
+          ],
+          "PunctuationDefinitionTagEndHtml": [
+            "punctuation.definition.tag.end.html"
+          ],
+          "PunctuationDefinitionTagEndJs": [
+            "punctuation.definition.tag.end.js"
+          ],
+          "PunctuationDefinitionTagJs": [
+            "punctuation.definition.tag.js"
+          ],
+          "PunctuationDefinitionTagXi": [
+            "punctuation.definition.tag.xi"
+          ],
+          "PunctuationDefinitionGroupRegexp": [
+            "punctuation.definition.group.regexp"
+          ],
+          "PunctuationDefinitionGroupAssertionRegexp": [
+            "punctuation.definition.group.assertion.regexp"
+          ],
+          "PunctuationDefinitionCharacterClassRegexp": [
+            "punctuation.definition.character-class.regexp"
+          ],
+          "PunctuationDefinitionQuoteBeginMarkdown": [
+            "punctuation.definition.quote.begin.markdown"
+          ],
+          "PunctuationDefinitionComment": [
+            "punctuation.definition.comment"
+          ],
+          "PunctuationDefinitionString": [
+            "punctuation.definition.string"
+          ],
+          "PunctuationDefinitionStringBeginHtml": [
+            "punctuation.definition.string.begin.html"
+          ],
+          "PunctuationDefinitionStringBeginPhp": [
+            "punctuation.definition.string.begin.php"
+          ],
+          "PunctuationDefinitionStringBeginMarkdown": [
+            "punctuation.definition.string.begin.markdown"
+          ],
+          "PunctuationDefinitionStringEndHtml": [
+            "punctuation.definition.string.end.html"
+          ],
+          "PunctuationDefinitionStringEndHtmlSource": [
+            "punctuation.definition.string.end.html source"
+          ],
+          "PunctuationDefinitionStringEndPhp": [
+            "punctuation.definition.string.end.php"
+          ],
+          "PunctuationDefinitionStringEndMarkdown": [
+            "punctuation.definition.string.end.markdown"
+          ],
+          "PunctuationDefinitionVariable": [
+            "punctuation.definition.variable"
+          ],
+          "PunctuationDefinitionEntity": [
+            "punctuation.definition.entity"
+          ],
+          "PunctuationDefinitionHeading": [
+            "punctuation.definition.heading"
+          ],
+          "PunctuationDefinitionHeadingMarkdown": [
+            "punctuation.definition.heading.markdown"
+          ],
+          "PunctuationDefinitionBold": [
+            "punctuation.definition.bold"
+          ],
+          "PunctuationDefinitionBoldMarkdown": [
+            "punctuation.definition.bold.markdown"
+          ],
+          "PunctuationDefinitionItalic": [
+            "punctuation.definition.italic"
+          ],
+          "PunctuationDefinitionFromFileDiff": [
+            "punctuation.definition.from-file.diff"
+          ],
+          "PunctuationDefinitionToFileDiff": [
+            "punctuation.definition.to-file.diff"
+          ],
+          "PunctuationDefinitionMetadataMarkdown": [
+            "punctuation.definition.metadata.markdown"
+          ],
+          "PunctuationDefinitionSectionSwitchBlockEndBracketCurlyPhp": [
+            "punctuation.definition.section.switch-block.end.bracket.curly.php"
+          ],
+          "PunctuationDefinitionSectionSwitchBlockStartBracketCurlyPhp": [
+            "punctuation.definition.section.switch-block.start.bracket.curly.php"
+          ],
+          "PunctuationDefinitionSectionSwitchBlockBeginBracketCurlyPhp": [
+            "punctuation.definition.section.switch-block.begin.bracket.curly.php"
+          ],
+          "PunctuationDefinitionParameters": [
+            "punctuation.definition.parameters"
+          ],
+          "PunctuationDefinitionParametersBeginBracketRoundPhp": [
+            "punctuation.definition.parameters.begin.bracket.round.php"
+          ],
+          "PunctuationDefinitionParametersEndBracketRoundPhp": [
+            "punctuation.definition.parameters.end.bracket.round.php"
+          ],
+          "PunctuationDefinitionArray": [
+            "punctuation.definition.array"
+          ],
+          "PunctuationDefinitionArrayBeginBracketRoundPhp": [
+            "punctuation.definition.array.begin.bracket.round.php"
+          ],
+          "PunctuationDefinitionArrayEndBracketRoundPhp": [
+            "punctuation.definition.array.end.bracket.round.php"
+          ],
+          "PunctuationDefinitionDelayedUnison": [
+            "punctuation.definition.delayed.unison"
+          ],
+          "PunctuationDefinitionAbilityBeginUnison": [
+            "punctuation.definition.ability.begin.unison"
+          ],
+          "PunctuationDefinitionAbilityEndUnison": [
+            "punctuation.definition.ability.end.unison"
+          ],
+          "PunctuationDefinitionHashUnison": [
+            "punctuation.definition.hash.unison"
+          ],
+          "PunctuationDefinitionMethodParametersBeginJava": [
+            "punctuation.definition.method-parameters.begin.java"
+          ],
+          "PunctuationDefinitionMethodParametersEndJava": [
+            "punctuation.definition.method-parameters.end.java"
+          ],
+          "PunctuationDefinitionAnnotationJava": [
+            "punctuation.definition.annotation.java"
+          ],
+          "PunctuationDefinitionArgumentsBeginPython": [
+            "punctuation.definition.arguments.begin.python"
+          ],
+          "PunctuationDefinitionArgumentsBeginBracketRoundPhp": [
+            "punctuation.definition.arguments.begin.bracket.round.php"
+          ],
+          "PunctuationDefinitionArgumentsEndPython": [
+            "punctuation.definition.arguments.end.python"
+          ],
+          "PunctuationDefinitionArgumentsEndBracketRoundPhp": [
+            "punctuation.definition.arguments.end.bracket.round.php"
+          ],
+          "PunctuationDefinitionConstant": [
+            "punctuation.definition.constant"
+          ],
+          "PunctuationDefinitionRawMarkdown": [
+            "punctuation.definition.raw.markdown"
+          ],
+          "PunctuationDefinitionAsciidoc": [
+            "punctuation.definition.asciidoc"
+          ],
+          "PunctuationDefinitionStorageTypeBeginBracketRoundPhp": [
+            "punctuation.definition.storage-type.begin.bracket.round.php"
+          ],
+          "PunctuationDefinitionStorageTypeEndBracketRoundPhp": [
+            "punctuation.definition.storage-type.end.bracket.round.php"
+          ],
+          "PunctuationDefinitionBeginBracketRoundPhp": [
+            "punctuation.definition.begin.bracket.round.php"
+          ],
+          "PunctuationDefinitionBeginBracketCurlyPhp": [
+            "punctuation.definition.begin.bracket.curly.php"
+          ],
+          "PunctuationDefinitionEndBracketRoundPhp": [
+            "punctuation.definition.end.bracket.round.php"
+          ],
+          "PunctuationDefinitionEndBracketCurlyPhp": [
+            "punctuation.definition.end.bracket.curly.php"
+          ],
+          "PunctuationDefinitionBlockSequenceItemYaml": [
+            "punctuation.definition.block.sequence.item.yaml"
+          ],
+          "PunctuationCharacterSetBeginRegexp": [
+            "punctuation.character.set.begin.regexp"
+          ],
+          "PunctuationCharacterSetEndRegexp": [
+            "punctuation.character.set.end.regexp"
+          ],
+          "PunctuationOperatorAssignmentAsUnison": [
+            "punctuation.operator.assignment.as.unison"
+          ],
+          "PunctuationParenthesisBeginPython": [
+            "punctuation.parenthesis.begin.python"
+          ],
+          "PunctuationParenthesisEndPython": [
+            "punctuation.parenthesis.end.python"
+          ],
+          "PunctuationTerminatorStatementC": [
+            "punctuation.terminator.statement.c"
+          ],
+          "PunctuationTerminatorJava": [
+            "punctuation.terminator.java"
+          ],
+          "PunctuationTerminatorExpressionPhp": [
+            "punctuation.terminator.expression.php"
+          ],
+          "PunctuationBracketAngleJava": [
+            "punctuation.bracket.angle.java"
+          ],
+          "PunctuationQuasiElement": [
+            "punctuation.quasi.element"
+          ],
+          "SourceGroovyEmbedded": [
+            "source.groovy.embedded"
+          ],
+          "SourcePowershellVariableOtherMember": [
+            "source.powershell variable.other.member"
+          ],
+          "SourceCppKeywordOperatorNew": [
+            "source.cpp keyword.operator.new"
+          ],
+          "SourceCppKeywordOperatorDelete": [
+            "source.cpp keyword.operator.delete"
+          ],
+          "SourceCssEntityOtherAttributeNameClass": [
+            "source.css entity.other.attribute-name.class"
+          ],
+          "SourceCssEntityOtherAttributeNamePseudoClass": [
+            "source.css entity.other.attribute-name.pseudo-class"
+          ],
+          "SourceCssLessEntityOtherAttributeNameId": [
+            "source.css.less entity.other.attribute-name.id"
+          ],
+          "SourceCssEmbeddedPunctuationDefinitionTagHtml": [
+            "source.css.embedded punctuation.definition.tag.html"
+          ],
+          "SourceCssVariable": [
+            "source.css variable"
+          ],
+          "SourceCoffeeEmbedded": [
+            "source.coffee.embedded"
+          ],
+          "SourceJsEmbeddedPunctuationDefinitionTagHtml": [
+            "source.js.embedded punctuation.definition.tag.html"
+          ],
+          "SourceCssSupportTypePropertyName": [
+            "source.css support.type.property-name"
+          ],
+          "SourcePhpEmbeddedLine": [
+            "source.php.embedded.line"
+          ],
+          "SourcePhpEmbeddedLineHtml": [
+            "source.php.embedded.line.html"
+          ],
+          "SourceJava": [
+            "source.java"
+          ],
+          "SourceJsonMetaStructureDictionaryJsonContainingStringQuotedJson": [
+            "source.json meta.structure.dictionary.json > string.quoted.json"
+          ],
+          "SourceJsonMetaStructureDictionaryJsonContainingStringQuotedJsonContainingPunctuationString": [
+            "source.json meta.structure.dictionary.json > string.quoted.json > punctuation.string"
+          ],
+          "SourceJsonMetaStructureDictionaryJsonContainingValueJsonContainingStringQuotedJson": [
+            "source.json meta.structure.dictionary.json > value.json > string.quoted.json"
+          ],
+          "SourceJsonMetaStructureDictionaryJsonContainingValueJsonContainingStringQuotedJsonContainingPunctuation": [
+            "source.json meta.structure.dictionary.json > value.json > string.quoted.json > punctuation"
+          ],
+          "SourceJsonMetaStructureDictionaryJsonContainingConstantLanguageJson": [
+            "source.json meta.structure.dictionary.json > constant.language.json"
+          ],
+          "SourceJsonMetaStructureArrayJsonContainingValueJsonContainingStringQuotedJson": [
+            "source.json meta.structure.array.json > value.json > string.quoted.json"
+          ],
+          "SourceJsonMetaStructureArrayJsonContainingValueJsonContainingStringQuotedJsonContainingPunctuation": [
+            "source.json meta.structure.array.json > value.json > string.quoted.json > punctuation"
+          ],
+          "SourceJsonMetaStructureArrayJsonContainingConstantLanguageJson": [
+            "source.json meta.structure.array.json > constant.language.json"
+          ],
+          "SourceIni": [
+            "source.ini"
+          ],
+          "SourceMakefile": [
+            "source.makefile"
+          ],
+          "Variable": [
+            "variable"
+          ],
+          "VariableLegacyBuiltinPython": [
+            "variable.legacy.builtin.python"
+          ],
+          "VariableLanguage": [
+            "variable.language"
+          ],
+          "VariableLanguageWildcardJava": [
+            "variable.language.wildcard.java"
+          ],
+          "VariableLanguageThis": [
+            "variable.language.this"
+          ],
+          "VariableLanguageJs": [
+            "variable.language.js"
+          ],
+          "VariableLanguageRuby": [
+            "variable.language.ruby"
+          ],
+          "VariableLanguageRust": [
+            "variable.language.rust"
+          ],
+          "VariableOther": [
+            "variable.other"
+          ],
+          "VariableOtherEnummember": [
+            "variable.other.enummember"
+          ],
+          "VariableOtherConstant": [
+            "variable.other.constant"
+          ],
+          "VariableOtherConstantProperty": [
+            "variable.other.constant.property"
+          ],
+          "VariableOtherPhp": [
+            "variable.other.php"
+          ],
+          "VariableOtherNormal": [
+            "variable.other.normal"
+          ],
+          "VariableOtherProperty": [
+            "variable.other.property"
+          ],
+          "VariableOtherGenericTypeHaskell": [
+            "variable.other.generic-type.haskell"
+          ],
+          "VariableOtherReadwrite": [
+            "variable.other.readwrite"
+          ],
+          "VariableOtherReadwriteC": [
+            "variable.other.readwrite.c"
+          ],
+          "VariableOtherClassJs": [
+            "variable.other.class.js"
+          ],
+          "VariableOtherClassTs": [
+            "variable.other.class.ts"
+          ],
+          "VariableOtherClassPhp": [
+            "variable.other.class.php"
+          ],
+          "VariableOtherObject": [
+            "variable.other.object"
+          ],
+          "VariableParameter": [
+            "variable.parameter"
+          ],
+          "VariableParameterFunction": [
+            "variable.parameter.function"
+          ],
+          "VariableParameterFunctionLanguageSpecialSelfPython": [
+            "variable.parameter.function.language.special.self.python"
+          ],
+          "VariableParameterFunctionLanguageSpecialClsPython": [
+            "variable.parameter.function.language.special.cls.python"
+          ],
+          "VariableParameterFunctionLanguagePython": [
+            "variable.parameter.function.language.python"
+          ],
+          "VariableParameterFunctionPython": [
+            "variable.parameter.function.python"
+          ],
+          "VariableParameterFunctionJs": [
+            "variable.parameter.function.js"
+          ],
+          "VariableParameterFunctionCoffee": [
+            "variable.parameter.function.coffee"
+          ],
+          "VariableParameterFunctionLatex": [
+            "variable.parameter.function.latex"
+          ],
+          "VariableInterpolation": [
+            "variable.interpolation"
+          ],
+          "VariableJs": [
+            "variable.js"
+          ],
+          "VariableC": [
+            "variable.c"
+          ],
+          "VariableFunction": [
+            "variable.function"
+          ],
+          "Constant": [
+            "constant"
+          ],
+          "ConstantNumeric": [
+            "constant.numeric"
+          ],
+          "ConstantNumericLineNumberFindInFilesMatch": [
+            "constant.numeric.line-number.find-in-files - match"
+          ],
+          "ConstantNumericDecimalAsmX86_64": [
+            "constant.numeric.decimal.asm.x86_64"
+          ],
+          "ConstantCharacter": [
+            "constant.character"
+          ],
+          "ConstantCharacterEscape": [
+            "constant.character.escape"
+          ],
+          "ConstantCharacterCharacterClassRegexp": [
+            "constant.character.character-class.regexp"
+          ],
+          "ConstantCharacterCharacterClassRegexpXi": [
+            "constant.character.character-class.regexp.xi"
+          ],
+          "ConstantCharacterSetRegexp": [
+            "constant.character.set.regexp"
+          ],
+          "ConstantCharacterEntity": [
+            "constant.character.entity"
+          ],
+          "ConstantCharacterFormatPlaceholderOtherPython": [
+            "constant.character.format.placeholder.other.python"
+          ],
+          "ConstantCharacterXi": [
+            "constant.character.xi"
+          ],
+          "ConstantCharacterMathTex": [
+            "constant.character.math.tex"
+          ],
+          "ConstantLanguage": [
+            "constant.language"
+          ],
+          "ConstantLanguageSymbolRuby": [
+            "constant.language.symbol.ruby"
+          ],
+          "ConstantLanguageSymbolHashkeyRuby": [
+            "constant.language.symbol.hashkey.ruby"
+          ],
+          "ConstantLanguageSymbolElixir": [
+            "constant.language.symbol.elixir"
+          ],
+          "ConstantLanguageSymbolDoubleQuotedElixir": [
+            "constant.language.symbol.double-quoted.elixir"
+          ],
+          "ConstantOther": [
+            "constant.other"
+          ],
+          "ConstantOtherColor": [
+            "constant.other.color"
+          ],
+          "ConstantOtherColorRgbValue": [
+            "constant.other.color.rgb-value"
+          ],
+          "ConstantOtherColorRgbValueXi": [
+            "constant.other.color.rgb-value.xi"
+          ],
+          "ConstantOtherRgbValue": [
+            "constant.other.rgb-value"
+          ],
+          "ConstantOtherCharacterClassRegexp": [
+            "constant.other.character-class.regexp"
+          ],
+          "ConstantOtherCharacterClassSetRegexp": [
+            "constant.other.character-class.set.regexp"
+          ],
+          "ConstantOtherPlaceholder": [
+            "constant.other.placeholder"
+          ],
+          "ConstantOtherSymbol": [
+            "constant.other.symbol"
+          ],
+          "ConstantOtherSymbolRuby": [
+            "constant.other.symbol.ruby"
+          ],
+          "ConstantOtherOption": [
+            "constant.other.option"
+          ],
+          "ConstantOtherPhp": [
+            "constant.other.php"
+          ],
+          "ConstantOtherGeneralMathTex": [
+            "constant.other.general.math.tex"
+          ],
+          "ConstantRegexp": [
+            "constant.regexp"
+          ],
+          "ConstantRegexpXi": [
+            "constant.regexp.xi"
+          ],
+          "ConstantShaGitRebase": [
+            "constant.sha.git-rebase"
+          ],
+          "ConstantKeywordClojure": [
+            "constant.keyword.clojure"
+          ],
+          "Invalid": [
+            "invalid"
+          ],
+          "InvalidDeprecated": [
+            "invalid.deprecated"
+          ],
+          "InvalidDeprecatedEntityOtherAttributeNameHtml": [
+            "invalid.deprecated.entity.other.attribute-name.html"
+          ],
+          "InvalidIllegal": [
+            "invalid.illegal"
+          ],
+          "InvalidIllegalBadAmpersandHtml": [
+            "invalid.illegal.bad-ampersand.html"
+          ],
+          "InvalidIllegalUnrecognizedTagHtml": [
+            "invalid.illegal.unrecognized-tag.html"
+          ],
+          "InvalidIllegalNonNullTypehintedPhp": [
+            "invalid.illegal.non-null-typehinted.php"
+          ],
+          "InvalidBroken": [
+            "invalid.broken"
+          ],
+          "InvalidUnimplemented": [
+            "invalid.unimplemented"
+          ],
+          "InvalidXi": [
+            "invalid.xi"
+          ],
+          "StringMetaImageInlineMarkdown": [
+            "string meta.image.inline.markdown"
+          ],
+          "TokenInfoToken": [
+            "token.info-token"
+          ],
+          "TokenWarnToken": [
+            "token.warn-token"
+          ],
+          "TokenErrorToken": [
+            "token.error-token"
+          ],
+          "TokenDebugToken": [
+            "token.debug-token"
+          ],
+          "TokenVariableParameterJava": [
+            "token.variable.parameter.java"
+          ],
+          "TokenPackage": [
+            "token.package"
+          ],
+          "TokenPackageKeyword": [
+            "token.package.keyword"
+          ],
+          "TokenStorage": [
+            "token.storage"
+          ],
+          "TokenStorageTypeJava": [
+            "token.storage.type.java"
+          ],
+          "Emphasis": [
+            "emphasis"
+          ],
+          "Strong": [
+            "strong"
+          ],
+          "None": [
+            "none"
+          ],
+          "DeclarationTag": [
+            "declaration.tag"
+          ],
+          "DeclarationSgmlHtmlDeclarationDoctype": [
+            "declaration.sgml.html declaration.doctype"
+          ],
+          "DeclarationSgmlHtmlDeclarationDoctypeEntity": [
+            "declaration.sgml.html declaration.doctype entity"
+          ],
+          "DeclarationSgmlHtmlDeclarationDoctypeString": [
+            "declaration.sgml.html declaration.doctype string"
+          ],
+          "DeclarationXmlProcessing": [
+            "declaration.xml-processing"
+          ],
+          "DeclarationXmlProcessingEntity": [
+            "declaration.xml-processing entity"
+          ],
+          "DeclarationXmlProcessingString": [
+            "declaration.xml-processing string"
+          ],
+          "DeclarationTagEntity": [
+            "declaration.tag entity"
+          ],
+          "Header": [
+            "header"
+          ],
+          "StringSource": [
+            "string source"
+          ],
+          "TextHtmlPhpSource": [
+            "text.html.php.source"
+          ],
+          "TextHtmlLaravelBladeSourcePhpEmbeddedLineHtmlEntityNameTagLaravelBlade": [
+            "text.html.laravel-blade source.php.embedded.line.html entity.name.tag.laravel-blade"
+          ],
+          "TextHtmlLaravelBladeSourcePhpEmbeddedLineHtmlSupportConstantLaravelBlade": [
+            "text.html.laravel-blade source.php.embedded.line.html support.constant.laravel-blade"
+          ],
+          "TextVariable": [
+            "text.variable"
+          ],
+          "TextBracketed": [
+            "text.bracketed"
+          ],
+          "TextSourceTextMetaTagStringPunctuation": [
+            "text source text meta.tag string -punctuation"
+          ],
+          "StringConstant": [
+            "string constant"
+          ],
+          "StringVariable": [
+            "string variable"
+          ],
+          "CommentMarkupLink": [
+            "comment markup.link"
+          ],
+          "ImportStorageJava": [
+            "import.storage.java"
+          ],
+          "ControlElements": [
+            "control.elements"
+          ],
+          "TodoBold": [
+            "todo.bold"
+          ],
+          "TodoEmphasis": [
+            "todo.emphasis"
+          ],
+          "EmphasisMd": [
+            "emphasis md"
+          ],
+          "BeginningPunctuationDefinitionListMarkdown": [
+            "beginning.punctuation.definition.list.markdown"
+          ],
+          "BeginningPunctuationDefinitionListMarkdownXi": [
+            "beginning.punctuation.definition.list.markdown.xi"
+          ],
+          "BeginningPunctuationDefinitionQuoteMarkdownXi": [
+            "beginning.punctuation.definition.quote.markdown.xi"
+          ],
+          "FunctionParameter": [
+            "function.parameter"
+          ],
+          "FunctionParameterRuby": [
+            "function.parameter.ruby"
+          ],
+          "FunctionParameterCs": [
+            "function.parameter.cs"
+          ],
+          "FunctionBrace": [
+            "function.brace"
+          ],
+          "RgbValue": [
+            "rgb-value"
+          ],
+          "InlineColorDecorationRgbValue": [
+            "inline-color-decoration rgb-value"
+          ],
+          "LessRgbValue": [
+            "less rgb-value"
+          ],
+          "SelectorSass": [
+            "selector.sass"
+          ],
+          "BlockScopeEnd": [
+            "block.scope.end"
+          ],
+          "BlockScopeBegin": [
+            "block.scope.begin"
+          ],
+          "AccentXi": [
+            "accent.xi"
+          ],
+          "WikiwordXi": [
+            "wikiword.xi"
+          ],
+          "LogInfo": [
+            "log.info"
+          ],
+          "LogWarning": [
+            "log.warning"
+          ],
+          "LogError": [
+            "log.error"
+          ]
+        }
+      }
+    ]
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
