@@ -213,12 +213,18 @@ function fetchReleases(
 }
 
 function getLspReleaseAssetName(): string | null {
-    if (process.platform === 'win32') {
-        return 'windows-x64-lsp';
-    } else if (process.platform === 'linux') {
-        return 'linux-x86-64-lsp';
-    } else {
-        return null
+    const platform = process.platform;
+    // Default to x64 unless arm64 is explicitly detected
+    const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
+    switch (platform) {
+        case 'win32':
+            return `windows-${arch}-lsp.zip`;
+        case 'darwin':
+            return `macos-${arch}-lsp.zip`;
+        case 'linux':
+            return `linux-${arch}-lsp.zip`;
+        default:
+            return null;
     }
 }
 

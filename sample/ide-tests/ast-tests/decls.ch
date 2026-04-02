@@ -108,9 +108,6 @@ interface FoodProvider {
 
 }
 
-// Alias Statement
-alias RealFoodProvider = FoodProvider;
-
 // Impl Block
 impl FoodProvider {
     @override

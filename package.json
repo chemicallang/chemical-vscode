@@ -2247,6 +2247,9 @@
           ],
           "LogError": [
             "log.error"
+          ],
+          "TextHtmlDerivative": [
+            "text.html.derivative"
           ]
         }
       }
