@@ -22,7 +22,7 @@ public enum Fruits {
 
 // Function Declaration
 @extern
-public func printf(format : *mut char, _ : any...);
+public func printf(format : *char, _ : any...);
 
 // Functions
 public func main() {
@@ -152,6 +152,7 @@ struct FoodProviderImpl {
 // Extension Functions
 func (food : &FoodProviderImpl) print() {
     printf(food.food);
+    // YO this is cool
 }
 
 // Generic Functions
