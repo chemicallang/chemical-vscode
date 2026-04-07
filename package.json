@@ -2269,6 +2269,7 @@
     "prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "package": "vsce package",
     "update-vscode": "node ./node_modules/vscode/bin/install"
   }
 }
