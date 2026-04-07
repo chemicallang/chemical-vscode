@@ -15,6 +15,15 @@ func see_it_through(page : &mut HtmlPage) {
     }
 }
 
+func another_func(page : &mut HtmlPage) {
+        #html {
+            <div>
+                <span>This is a span</span>
+                <span>This is another span</span>
+            </div>
+        }
+}
+
 func another_html_comp(page : &mut HtmlPage) {
     #html {
         <table>
