@@ -244,7 +244,7 @@ async function getLspPkgDir(context: vscode.ExtensionContext): Promise<string | 
     // If already extracted, return path
     const marker = path.join(extractedPath, '.ready');
     if (fs.existsSync(marker)) {
-        return path.join(extractedPath, assetName);
+        return extractedPath;
     }
 
     return null
@@ -496,9 +496,15 @@ function searchLspExecutable(dirPath: string): string | null {
     for (const lspExeName of lspExecutableNames) {
         const lspExecutableName = lspExeName + platformExtension;
         const potentialLspPath = path.join(dirPath, lspExecutableName);
-        if (fs.existsSync(potentialLspPath)) {
+        if (fs.existsSync(potentialLspPath) && fs.statSync(potentialLspPath).isFile()) {
             return potentialLspPath;
         }
+    }
+    // Not found directly — check inside a "chemical-lsp" subdirectory
+    // (the zip archive extracts with a "chemical-lsp/" root directory)
+    const subDir = path.join(dirPath, "chemical-lsp");
+    if (fs.existsSync(subDir)) {
+        return searchLspExecutable(subDir);
     }
     return null;
 }
