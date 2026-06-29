@@ -21,14 +21,14 @@ public func main() : int {
 and save this in `chemical.mod`
 
 ```
-module main
+application main
 
 source "src"
 
 import std
 ```
 
-> Now press the play button in top right corner
+> Open chemical.mod, Press the play button in top right corner
 
 ### Got any questions ?
 
