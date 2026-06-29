@@ -111,15 +111,10 @@
     "configuration": {
       "title": "Chemical",
       "properties": {
-        "chemical.compilerPath": {
-          "type": "string",
-          "default": "",
-          "description": "Override path to bundled Chemical compiler (lsp.exe)"
-        },
         "chemical.lsp.stdio": {
           "type": "boolean",
           "default": false,
-          "description": "Use stdio transport instead of TCP socket for LSP communication. Enable if experiencing 'socket hang up' errors (default: TCP socket for GDB debugging support)."
+          "description": "Use stdio transport instead of TCP socket for LSP communication."
         }
       }
     },
