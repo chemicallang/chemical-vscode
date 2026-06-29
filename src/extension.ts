@@ -534,10 +534,23 @@ async function launchLspFromPkgDir(pkgDir: string, args: string[] = []): Promise
     }
 }
 
+function findConfiguredLspPath(): string | null {
+    const configuredPath = vscode.workspace.getConfiguration('chemical').get<string>('lsp.path', '');
+    if (configuredPath && fs.existsSync(configuredPath)) {
+        const found = searchLspExecutable(configuredPath);
+        if (found != null) {
+            console.log("Found LSP executable via chemical.lsp.path setting:", found);
+            return found;
+        }
+    }
+    return null;
+}
+
 // returns whether update should be checked
 async function findAndlaunchLSP(context: vscode.ExtensionContext, useStdio: boolean = false): Promise<boolean> {
     const lspArgs = useStdio ? ["--stdio"] : [];
-    const lspPath = findEnvLspPath()
+    // Priority: 1) GUI setting, 2) env var, 3) downloaded package
+    const lspPath = findConfiguredLspPath() || findEnvLspPath()
     if (lspPath) {
         return launchLsp(lspPath, lspArgs).then(() => false);
     } else {

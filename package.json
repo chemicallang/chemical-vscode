@@ -111,6 +111,11 @@
     "configuration": {
       "title": "Chemical",
       "properties": {
+        "chemical.lsp.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a directory containing the Chemical LSP executable. Overrides CHEMICAL_LSP_HOME environment variable. Useful for debugging with custom builds."
+        },
         "chemical.lsp.stdio": {
           "type": "boolean",
           "default": false,
