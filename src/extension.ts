@@ -424,7 +424,7 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
     const releases = await fetchReleases(repoOwner, repoName)
     // console.log("fetched releases : ", releases)
 
-    let assetFileName = assetName + ".zip"
+    let assetFileName = assetName
 
     // Find asset download URL
     let downloadUrl: string | undefined;
