@@ -303,7 +303,7 @@ async function downloadLspPackageUpdate(
         return null;
     }
 
-    let assetFileName = assetName + ".zip"
+    let assetFileName = assetName
 
     //   // Find asset download URL
     let downloadUrl: string | undefined;
@@ -493,7 +493,7 @@ async function launchLsp(lspPath: string): Promise<void> {
 function searchLspExecutable(dirPath: string): string | null {
     console.log("searching for lsp executable at path", dirPath)
     const platformExtension = os.platform() === 'win32' ? '.exe' : '';
-    const lspExecutableNames = ["lsp", "ChemicalLSP", "chemical-lsp"]
+    const lspExecutableNames = ["lsp", "ChemicalLsp", "chemical-lsp"]
     for (const lspExeName of lspExecutableNames) {
         const lspExecutableName = lspExeName + platformExtension;
         const potentialLspPath = path.join(dirPath, lspExecutableName);
