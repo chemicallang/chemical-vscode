@@ -455,14 +455,13 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
 let childProcess: ChildProcessWithoutNullStreams | null = null;
 let launchedLspPath : string | null = null;
 
-async function launchLsp(lspPath: string): Promise<void> {
+async function launchLsp(lspPath: string, args: string[] = []): Promise<void> {
 
     // set to global variable for accessing it for commands
     launchedLspPath = lspPath;
 
     // Launch the LSP process using spawn
-    // [] is where you'd pass command-line arguments if needed
-    childProcess = spawn(lspPath, [], { stdio: 'pipe' });
+    childProcess = spawn(lspPath, args, { stdio: 'pipe' });
 
     // Listen to stdout
     childProcess.stdout.on('data', (data) => {
@@ -520,28 +519,29 @@ function findEnvLspPath(): string | null {
     return lspPath;
 }
 
-async function launchLspFromPkgDir(pkgDir: string): Promise<void> {
+async function launchLspFromPkgDir(pkgDir: string, args: string[] = []): Promise<void> {
     const found = searchLspExecutable(pkgDir)
     if (found != null) {
-        return launchLsp(found)
+        return launchLsp(found, args)
     } else {
         return new Promise((resolve, reject) => reject("couldn't find lsp executable in downloaded package"))
     }
 }
 
 // returns whether update should be checked
-async function findAndlaunchLSP(context: vscode.ExtensionContext): Promise<boolean> {
+async function findAndlaunchLSP(context: vscode.ExtensionContext, useStdio: boolean = false): Promise<boolean> {
+    const lspArgs = useStdio ? ["--stdio"] : [];
     const lspPath = findEnvLspPath()
     if (lspPath) {
-        return launchLsp(lspPath).then(() => false);
+        return launchLsp(lspPath, lspArgs).then(() => false);
     } else {
         return getLspPkgDir(context).then((pkgDir) => {
             if (pkgDir != null) {
                 doLocalUpdateBeforeLaunch(context)
-                return launchLspFromPkgDir(pkgDir).then(() => true);
+                return launchLspFromPkgDir(pkgDir, lspArgs).then(() => true);
             } else {
                 return downloadLspPackage(context).then((pkgDir) => {
-                    return launchLspFromPkgDir(pkgDir).then(() => false)
+                    return launchLspFromPkgDir(pkgDir, lspArgs).then(() => false)
                 })
             }
         })
@@ -551,10 +551,22 @@ async function findAndlaunchLSP(context: vscode.ExtensionContext): Promise<boole
 const DefaultLSPHost = "127.0.0.1"
 const DefaultLSPPort = 5007;
 
-function launchLanguageClient(context: ExtensionContext): Promise<string | null> {
+function launchLanguageClient(context: ExtensionContext, useStdio: boolean = false): Promise<string | null> {
 
     let serverOptions = () => {
-        // Connect to language server via socket
+        if (useStdio && childProcess) {
+            // Connect via stdio (stdin/stdout) instead of TCP socket
+            // This avoids socket FD leaking to child build processes
+            let result: StreamInfo = {
+                writer: childProcess.stdin,
+                reader: childProcess.stdout
+            };
+            return Promise.resolve(result);
+        }
+        if (useStdio) {
+            console.warn("chemical.lsp.stdio is enabled but LSP process is not running, falling back to TCP socket");
+        }
+        // Default: Connect to language server via TCP socket
         let socket = net.connect({ port: DefaultLSPPort })
         let result: StreamInfo = {
             writer: socket,
@@ -633,18 +645,21 @@ export function activate(context: ExtensionContext) {
 
     const isDevelopment = context.extensionMode == vscode.ExtensionMode.Development; // or use your own env variable
 
+    // Read the stdio transport setting (default: TCP socket for GDB debugging)
+    const useStdio = vscode.workspace.getConfiguration('chemical').get<boolean>('lsp.stdio', false);
+
     if (isDevelopment) {
         isPortOccupied(DefaultLSPHost, DefaultLSPPort).then((is_occupied) => {
             if (is_occupied) {
                 vscode.window.showInformationMessage("Port Occupied, Chemical LSP Development Mode");
                 // Only launch the language client directly in development mode
-                launchLanguageClient(context);
+                launchLanguageClient(context, useStdio);
             } else {
                 // default lsp port is not occupied, we must launch the LSP
-                const launched = findAndlaunchLSP(context)
+                const launched = findAndlaunchLSP(context, useStdio)
                 launched.then((checkForUpdates) => {
                     console.log("Launched Chemical LSP executable");
-                    launchLanguageClient(context).then((currVersion) => {
+                    launchLanguageClient(context, useStdio).then((currVersion) => {
                         if(launchedLspPath != null) {
                             registerChemicalTasks(context, launchedLspPath)
                         }
@@ -660,10 +675,10 @@ export function activate(context: ExtensionContext) {
         })
     } else {
         // In production mode, launch the LSP first, then the client
-        const launched = findAndlaunchLSP(context)
+        const launched = findAndlaunchLSP(context, useStdio)
         launched.then((checkForUpdates) => {
             console.log("Launched Chemical LSP executable");
-            launchLanguageClient(context).then((currVersion) => {
+            launchLanguageClient(context, useStdio).then((currVersion) => {
                 if(launchedLspPath != null) {
                     registerChemicalTasks(context, launchedLspPath)
                 }
