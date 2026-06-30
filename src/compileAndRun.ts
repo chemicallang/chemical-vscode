@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { Task, TaskDefinition, TaskGroup, TaskRevealKind, TaskPanelKind, ProcessExecution } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 
 // ---- Core logic (no VS Code context) ----
@@ -18,23 +19,54 @@ export async function findSourceFile(): Promise<string | undefined> {
 }
 
 /**
- * Compile the given source file via terminal
+ * Build flags from extension settings
+ */
+export function getBuildFlags(): string[] {
+  const flags: string[] = [];
+  const mode = vscode.workspace.getConfiguration('chemical').get<string>('build.mode', 'debug');
+  if (mode) flags.push('--mode', mode);
+  const noCache = vscode.workspace.getConfiguration('chemical').get<boolean>('build.noCache', false);
+  if (noCache) flags.push('--no-cache');
+  const pluginMode = vscode.workspace.getConfiguration('chemical').get<string>('build.pluginMode', '');
+  if (pluginMode) flags.push('--plugin-mode', pluginMode);
+  const recompilePlugins = vscode.workspace.getConfiguration('chemical').get<boolean>('build.recompilePlugins', true);
+  if (recompilePlugins) flags.push('-frecompile-plugins');
+  return flags;
+}
+
+/**
+ * Get output path from settings or generate temporary
+ */
+export function getOutputPath(): string {
+  const customOutput = vscode.workspace.getConfiguration('chemical').get<boolean>('build.customOutput', false);
+  if (customOutput) {
+    const outputPath = vscode.workspace.getConfiguration('chemical').get<string>('build.outputPath', '');
+    if (outputPath) return outputPath;
+  }
+  return path.join(os.tmpdir(), `chemical_build_${Date.now()}.exe`);
+}
+
+/**
+ * Compile the given source file via terminal (configure - build only)
  */
 export function compileInTerminal(lspPath: string, sourcePath: string, terminal?: vscode.Terminal) {
   const term = terminal || vscode.window.createTerminal('Chemical Build');
   term.show(true);
-  const cmd = `${lspPath} cc "${sourcePath}" -o main.exe`;
+  const flags = getBuildFlags();
+  const outputPath = getOutputPath();
+  const cmd = `"${lspPath}" cc "${sourcePath}" -o "${outputPath}" ${flags.join(' ')}`;
   term.sendText(cmd);
 }
 
 /**
- * Run the compiled executable via terminal
+ * Run the build file via terminal (compile + execute)
  */
-export function runInTerminal(executable: string = 'main.exe', terminal?: vscode.Terminal) {
+export function runInTerminal(lspPath: string, sourcePath: string, terminal?: vscode.Terminal) {
   const term = terminal || vscode.window.createTerminal('Chemical Run');
   term.show(true);
-  // On Windows, execute directly; on *nix you might need `./`
-  const cmd = process.platform === 'win32' ? `"${executable}"` : `./${executable}`;
+  const flags = getBuildFlags();
+  const outputPath = getOutputPath();
+  const cmd = `"${lspPath}" run "${sourcePath}" -o "${outputPath}" ${flags.join(' ')}`;
   term.sendText(cmd);
 }
 
@@ -53,7 +85,6 @@ export async function compileAndRunCommand(lspPath : string) {
     const terminal = vscode.window.createTerminal('Chemical Workflow');
     compileInTerminal(lspPath, src, terminal);
     // chain run after compile by sending `&&`
-    // Alternatively, user presses Run button separately
     terminal.sendText(process.platform === 'win32'
       ? `if %ERRORLEVEL%==0 main.exe`
       : `if [ $? -eq 0 ]; then ./main.exe; fi`
@@ -82,19 +113,20 @@ export function registerChemicalTasks(context: vscode.ExtensionContext, lspPath:
         const sourceFile = fs.existsSync(modPath) ? modPath : labPath;
         const isModUsed = fs.existsSync(modPath);
 
-        // === Build Task ===
+        const flags = getBuildFlags();
+        const outputPath = getOutputPath();
+
+        // === Build Task (configure) ===
         const buildDef: vscode.TaskDefinition = { type: CHEMICAL_TYPE, task: 'build' };
-        const exeName = process.platform === 'win32' ? 'main.exe' : 'main';
-        const finalOutput = "build/" + exeName;
         const buildExec = new vscode.ProcessExecution(
           lspPath,
-          ['cc', sourceFile, '-o', finalOutput],
+          ['cc', sourceFile, '-o', outputPath, ...flags],
           { cwd: wsFolder }
         );
         const buildTask = new vscode.Task(
           buildDef,
           vscode.TaskScope.Workspace,
-          'Build Chemical',
+          'Configure Chemical',
           'chemical',
           buildExec,
           ['$gcc']
@@ -108,9 +140,11 @@ export function registerChemicalTasks(context: vscode.ExtensionContext, lspPath:
 
         // === Run Task ===
         const runDef: vscode.TaskDefinition = { type: CHEMICAL_TYPE, task: 'run' };
-        const runExec = new vscode.ProcessExecution(path.join(wsFolder, finalOutput), [], {
-          cwd: wsFolder
-        });
+        const runExec = new vscode.ProcessExecution(
+          lspPath,
+          ['run', sourceFile, '-o', outputPath, ...flags],
+          { cwd: wsFolder }
+        );
         const runTask = new vscode.Task(
           runDef,
           vscode.TaskScope.Workspace,
@@ -125,33 +159,11 @@ export function registerChemicalTasks(context: vscode.ExtensionContext, lspPath:
           close: false
         };
 
-        // Tag run task with file used so we can use it in onDidEndTaskProcess
-        (runTask as any).__isModUsed = isModUsed;
-
         return [buildTask, runTask];
       },
 
-      // Optional — not needed unless tasks.json used
       resolveTask(_task) {
         return undefined;
-      }
-    })
-  );
-
-  // Auto-run after successful build (only if chemical.mod used)
-  context.subscriptions.push(
-    vscode.tasks.onDidEndTaskProcess(async (e) => {
-      const def = e.execution.task.definition;
-      if (def.type === CHEMICAL_TYPE && def.task === 'build' && e.exitCode === 0) {
-        const wsFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-        if (!wsFolder) return;
-
-        const isModUsed = fs.existsSync(path.join(wsFolder, 'chemical.mod'));
-        if (!isModUsed) return;
-
-        const tasks = await vscode.tasks.fetchTasks({ type: CHEMICAL_TYPE });
-        const run = tasks.find(t => t.definition.task === 'run');
-        if (run) vscode.tasks.executeTask(run);
       }
     })
   );

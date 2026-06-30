@@ -13,7 +13,7 @@ import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
 import { compareVersions, parseVersion } from "./version";
-import { compileAndRunCommand, getConfiguredLspPath, registerChemicalTasks } from "./compileAndRun";
+import { compileAndRunCommand, getConfiguredLspPath, registerChemicalTasks, getBuildFlags, getOutputPath } from "./compileAndRun";
 
 let lc: LanguageClient;
 
@@ -711,40 +711,201 @@ export function activate(context: ExtensionContext) {
         })
     }
 
-    context.subscriptions.push(
-    vscode.commands.registerCommand("run-button.debug", async () => {
-        if (isChemicalTaskRunning) return; // Prevent re-entry
-        isChemicalTaskRunning = true;
-        await updateRunButtonVisibility(context, RunButtonStatus.Running);
+    function getActiveBuildFilePath(): string | undefined {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) return undefined;
+        const fileName = path.basename(editor.document.fileName);
+        if (fileName === 'chemical.mod' || fileName === 'build.lab') {
+            return editor.document.fileName;
+        }
+        return undefined;
+    }
 
-        try {
-            const tasks = await vscode.tasks.fetchTasks({ type: "chemical" });
-            const build = tasks.find(t => t.definition.task === 'build');
-            if (!build) {
-                vscode.window.showErrorMessage('Cannot find Chemical build task.');
-                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-                isChemicalTaskRunning = false;
+    function buildInTerminal(lspPath: string, buildFile: string, extraArgs: string[], description: string) {
+        const flags = getBuildFlags();
+        const args = [...extraArgs, ...flags];
+        const term = vscode.window.createTerminal(`Chemical ${description}`);
+        term.show(true);
+        const cmd = `"${lspPath}" ${args.join(' ')}`;
+        term.sendText(cmd);
+        return term;
+    }
+
+    // Configure command: build the build file without running
+    context.subscriptions.push(
+        vscode.commands.registerCommand("chemical.configure", async () => {
+            const buildFile = getActiveBuildFilePath();
+            if (!buildFile) {
+                vscode.window.showErrorMessage('Open chemical.mod or build.lab first.');
+                return;
+            }
+            if (!launchedLspPath) {
+                vscode.window.showErrorMessage('Chemical LSP not started.');
+                return;
+            }
+            const outputPath = getOutputPath();
+            buildInTerminal(launchedLspPath, buildFile,
+                ['cc', `"${buildFile}"`, '-o', `"${outputPath}"`],
+                'Configure');
+        })
+    );
+
+    // Run build command: compile and run the build file
+    context.subscriptions.push(
+        vscode.commands.registerCommand("chemical.runBuild", async () => {
+            if (isChemicalTaskRunning) return;
+            const buildFile = getActiveBuildFilePath();
+            if (!buildFile) {
+                vscode.window.showErrorMessage('Open chemical.mod or build.lab first.');
+                return;
+            }
+            if (!launchedLspPath) {
+                vscode.window.showErrorMessage('Chemical LSP not started.');
                 return;
             }
 
-            const taskExecution = await vscode.tasks.executeTask(build);
+            isChemicalTaskRunning = true;
+            await updateRunButtonVisibility(context, RunButtonStatus.Running);
 
-            const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
-                if (e.execution.task === build) {
-                    updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-                    isChemicalTaskRunning = false;
-                    disposable.dispose();
+            try {
+                const outputPath = getOutputPath();
+                const term = buildInTerminal(launchedLspPath, buildFile,
+                    ['cc', 'run', `"${buildFile}"`, '-o', `"${outputPath}"`],
+                    'Run');
+                // Wait for terminal process to finish and update button state
+                const disposable = vscode.window.onDidCloseTerminal((closedTerm) => {
+                    if (closedTerm === term) {
+                        updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+                        isChemicalTaskRunning = false;
+                        disposable.dispose();
+                    }
+                });
+            } catch (err) {
+                vscode.window.showErrorMessage('Failed to run build: ' + err);
+                updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+                isChemicalTaskRunning = false;
+            }
+        })
+    );
+
+    // Run options command: show quick pick with build settings
+    context.subscriptions.push(
+        vscode.commands.registerCommand("chemical.runOptions", async () => {
+            const buildFile = getActiveBuildFilePath();
+            if (!buildFile) {
+                vscode.window.showErrorMessage('Open chemical.mod or build.lab first.');
+                return;
+            }
+
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.title = 'Chemical Build Options';
+            quickPick.placeholder = 'Select an option to configure';
+            quickPick.items = [
+                { label: '$(debug-start) Run Build', description: 'Compile and run with current settings' },
+                { label: '$(gear) Configure', description: 'Build without running' },
+                { label: '$(symbol-enum) Mode', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<string>('build.mode', 'debug')}` },
+                { label: '$(symbol-event) No Cache', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<boolean>('build.noCache', false) ? 'Enabled' : 'Disabled'}` },
+                { label: '$(wrench) Plugin Mode', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<string>('build.pluginMode', '') || 'default'}` },
+                { label: '$(sync) Recompile Plugins', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<boolean>('build.recompilePlugins', true) ? 'Enabled' : 'Disabled'}` },
+                { label: '$(files) Output Path', description: 'Configure custom output executable path' },
+            ];
+
+            quickPick.onDidAccept(async () => {
+                const selection = quickPick.selectedItems[0];
+                if (!selection) { quickPick.hide(); return; }
+                quickPick.hide();
+
+                const config = vscode.workspace.getConfiguration('chemical');
+
+                switch (selection.label) {
+                    case '$(debug-start) Run Build':
+                        vscode.commands.executeCommand('chemical.runBuild');
+                        break;
+                    case '$(gear) Configure':
+                        vscode.commands.executeCommand('chemical.configure');
+                        break;
+                    case '$(symbol-enum) Mode': {
+                        const mode = await vscode.window.showQuickPick(
+                            ['debug', 'release', 'debug_complete', 'debug_quick'],
+                            { placeHolder: 'Select compilation mode' }
+                        );
+                        if (mode) await config.update('build.mode', mode, vscode.ConfigurationTarget.Workspace);
+                        break;
+                    }
+                    case '$(symbol-event) No Cache': {
+                        const current = config.get<boolean>('build.noCache', false);
+                        await config.update('build.noCache', !current, vscode.ConfigurationTarget.Workspace);
+                        break;
+                    }
+                    case '$(wrench) Plugin Mode': {
+                        const pm = await vscode.window.showQuickPick(
+                            ['default', 'debug', 'release', 'debug_complete', 'debug_quick'],
+                            { placeHolder: 'Select plugin compilation mode' }
+                        );
+                        if (pm) await config.update('build.pluginMode', pm === 'default' ? '' : pm, vscode.ConfigurationTarget.Workspace);
+                        break;
+                    }
+                    case '$(sync) Recompile Plugins': {
+                        const current = config.get<boolean>('build.recompilePlugins', true);
+                        await config.update('build.recompilePlugins', !current, vscode.ConfigurationTarget.Workspace);
+                        break;
+                    }
+                    case '$(files) Output Path': {
+                        const useCustom = await vscode.window.showQuickPick(
+                            ['Use temporary file', 'Use custom path'],
+                            { placeHolder: 'Select output configuration' }
+                        );
+                        if (!useCustom) break;
+                        if (useCustom === 'Use temporary file') {
+                            await config.update('build.customOutput', false, vscode.ConfigurationTarget.Workspace);
+                        } else {
+                            const outputPath = await vscode.window.showInputBox({
+                                prompt: 'Enter output executable path',
+                                placeHolder: '/path/to/output.exe'
+                            });
+                            if (outputPath) {
+                                await config.update('build.customOutput', true, vscode.ConfigurationTarget.Workspace);
+                                await config.update('build.outputPath', outputPath, vscode.ConfigurationTarget.Workspace);
+                            }
+                        }
+                        break;
+                    }
                 }
             });
-        } catch (err) {
-            vscode.window.showErrorMessage('Failed to run build task.');
-            updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-            isChemicalTaskRunning = false;
-        }
-    })
+
+            quickPick.show();
+        })
     );
 
     updateRunButtonVisibility(context, RunButtonStatus.Stopped);
+
+    // Listen for diagnostics on build files and show notification on build failure
+    context.subscriptions.push(
+        vscode.languages.onDidChangeDiagnostics((e) => {
+            for (const uri of e.uris) {
+                const fileName = path.basename(uri.fsPath);
+                if (fileName === 'chemical.mod' || fileName === 'build.lab') {
+                    const diags = vscode.languages.getDiagnostics(uri);
+                    const errors = diags.filter(d => d.severity === vscode.DiagnosticSeverity.Error);
+                    if (errors.length > 0) {
+                        const buildError = errors.find(d => d.message.includes('Build file compilation failed'));
+                        if (buildError) {
+                            vscode.window.showErrorMessage(
+                                'Chemical build failed: ' + buildError.message,
+                                'Configure', 'Run'
+                            ).then(selection => {
+                                if (selection === 'Configure') {
+                                    vscode.commands.executeCommand('chemical.configure');
+                                } else if (selection === 'Run') {
+                                    vscode.commands.executeCommand('chemical.runBuild');
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        })
+    );
 
     // project selection
 

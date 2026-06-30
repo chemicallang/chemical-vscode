@@ -1,4 +1,4 @@
-module main
+application main
 
 source "src"
 

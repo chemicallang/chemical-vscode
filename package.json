@@ -90,9 +90,19 @@
     "menus": {
       "editor/title": [
         {
-          "command": "run-button.debug",
-          "group": "navigation",
-          "when": "activeEditor == workbench.editors.files.textFileEditor && (resourceExtname == '.ch' || resourceExtname == '.lab')"
+          "command": "chemical.configure",
+          "group": "navigation@1",
+          "when": "resourceFilename == 'chemical.mod' || resourceFilename == 'build.lab'"
+        },
+        {
+          "command": "chemical.runBuild",
+          "group": "navigation@2",
+          "when": "resourceFilename == 'chemical.mod' || resourceFilename == 'build.lab'"
+        },
+        {
+          "command": "chemical.runOptions",
+          "group": "navigation@3",
+          "when": "resourceFilename == 'chemical.mod' || resourceFilename == 'build.lab'"
         }
       ]
     },
@@ -102,10 +112,20 @@
         "title": "Select Project"
       },
       {
-        "command": "run-button.debug",
-        "title": "Run",
+        "command": "chemical.configure",
+        "title": "Configure",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "chemical.runBuild",
+        "title": "Run Build",
         "icon": "$(debug-start)",
         "enablement": "!chemical:isRunning"
+      },
+      {
+        "command": "chemical.runOptions",
+        "title": "Build Options",
+        "icon": "$(settings-gear)"
       }
     ],
     "configuration": {
@@ -120,6 +140,38 @@
           "type": "boolean",
           "default": false,
           "description": "Use stdio transport instead of TCP socket for LSP communication."
+        },
+        "chemical.build.mode": {
+          "type": "string",
+          "default": "debug",
+          "enum": ["debug", "release", "debug_complete", "debug_quick"],
+          "description": "Compilation mode for build/run tasks."
+        },
+        "chemical.build.noCache": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable --no-cache flag when building."
+        },
+        "chemical.build.pluginMode": {
+          "type": "string",
+          "default": "",
+          "enum": ["", "debug", "release", "debug_complete", "debug_quick"],
+          "description": "Plugin compilation mode (empty = use default from mode)."
+        },
+        "chemical.build.recompilePlugins": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable -frecompile-plugins flag."
+        },
+        "chemical.build.customOutput": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a custom output path instead of a temporary file."
+        },
+        "chemical.build.outputPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom output executable path (only used when chemical.build.customOutput is true)."
         }
       }
     },

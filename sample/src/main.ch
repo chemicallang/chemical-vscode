@@ -90,6 +90,7 @@ public func main(argc : int, argv : *mut char) : int {
     var p : Point = { a : 10, b : 20 }
     const x = 10;
     var y = 20;
+    var s = submod_sum(10, 20)
     
     printf("%d, %d", p.a, p.b);
     if(p.a == 10) {
