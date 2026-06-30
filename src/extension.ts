@@ -621,6 +621,23 @@ function launchLanguageClient(context: ExtensionContext, useStdio: boolean = fal
     return lc.start().then(() => {
         console.log("[Debug] ChemicalLSP Running")
 
+        context.subscriptions.push(
+            lc.onNotification("chemical/buildStatus", (params: any) => {
+                if (!params.success) {
+                    vscode.window.showErrorMessage(
+                        'Chemical build failed',
+                        'Configure', 'Run'
+                    ).then(selection => {
+                        if (selection === 'Configure') {
+                            vscode.commands.executeCommand('chemical.configure');
+                        } else if (selection === 'Run') {
+                            vscode.commands.executeCommand('chemical.runBuild');
+                        }
+                    });
+                }
+            })
+        );
+
         let result = lc.initializeResult
         if (result != null) {
             let info = result.serverInfo
@@ -878,34 +895,6 @@ export function activate(context: ExtensionContext) {
     );
 
     updateRunButtonVisibility(context, RunButtonStatus.Stopped);
-
-    // Listen for diagnostics on build files and show notification on build failure
-    context.subscriptions.push(
-        vscode.languages.onDidChangeDiagnostics((e) => {
-            for (const uri of e.uris) {
-                const fileName = path.basename(uri.fsPath);
-                if (fileName === 'chemical.mod' || fileName === 'build.lab') {
-                    const diags = vscode.languages.getDiagnostics(uri);
-                    const errors = diags.filter(d => d.severity === vscode.DiagnosticSeverity.Error);
-                    if (errors.length > 0) {
-                        const buildError = errors.find(d => d.message.includes('Build file compilation failed'));
-                        if (buildError) {
-                            vscode.window.showErrorMessage(
-                                'Chemical build failed: ' + buildError.message,
-                                'Configure', 'Run'
-                            ).then(selection => {
-                                if (selection === 'Configure') {
-                                    vscode.commands.executeCommand('chemical.configure');
-                                } else if (selection === 'Run') {
-                                    vscode.commands.executeCommand('chemical.runBuild');
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        })
-    );
 
     // project selection
 
