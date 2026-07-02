@@ -270,7 +270,7 @@ const repoName = 'chemical';
  */
 async function downloadLspPackageUpdate(
     context: vscode.ExtensionContext,
-    currVersion: string,
+    currVersion: string | null,
     considerNightly: boolean,
     considerAlphaBeta: boolean
 ): Promise<string | null> {
@@ -297,6 +297,11 @@ async function downloadLspPackageUpdate(
     const releases = await fetchReleases(repoOwner, repoName)
     // console.log("fetched releases : ", releases)
 
+    if(currVersion == null) {
+        console.error("current version given to downloadLspPackageUpdate is null");
+        return null;
+    }
+
     const currentVersion = parseVersion(currVersion)
     if (currentVersion == null) {
         console.error("couldn't parse current version", currVersion);
@@ -311,6 +316,9 @@ async function downloadLspPackageUpdate(
         const rel = releases[i];
         if (rel.name != null) {
             const newVersion = parseVersion(rel.name)
+            if(newVersion == null) {
+                continue;
+            }
             if (newVersion.prerelease != null) {
                 if (considerNightly && newVersion.prerelease == "nightly") {
                     const compareResult = compareVersions(newVersion, currentVersion)
@@ -953,7 +961,7 @@ enum RunButtonStatus {
     Stopped
 }
 
-function updateRunButtonVisibility(context, status: RunButtonStatus) {
+function updateRunButtonVisibility(context : vscode.ExtensionContext, status: RunButtonStatus) {
   // sets the context key 'chemical:isRunning' to true/false
   return vscode.commands.executeCommand(
     'setContext',
