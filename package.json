@@ -2,7 +2,7 @@
   "name": "chemical-vscode",
   "displayName": "Chemical",
   "description": "Extension providing Chemical Programming Language Support, LSP Client for Chemical's LSP Server",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "publisher": "chemical",
   "license": "SEE LICENSE IN LICENSE",
   "icon": "./icon.png",
@@ -114,7 +114,7 @@
       {
         "command": "chemical.configure",
         "title": "Configure",
-        "icon": "$(gear)"
+        "icon": "$(wrench)"
       },
       {
         "command": "chemical.runBuild",
@@ -125,7 +125,7 @@
       {
         "command": "chemical.runOptions",
         "title": "Build Options",
-        "icon": "$(settings-gear)"
+        "icon": "$(gear)"
       }
     ],
     "configuration": {
@@ -160,8 +160,13 @@
         },
         "chemical.build.recompilePlugins": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Enable -frecompile-plugins flag."
+        },
+        "chemical.build.incremental": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable --incremental flag for incremental compilation."
         },
         "chemical.build.customOutput": {
           "type": "boolean",

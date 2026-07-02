@@ -805,92 +805,114 @@ export function activate(context: ExtensionContext) {
         })
     );
 
-    // Run options command: show quick pick with build settings
+    // Run options command: show webview panel with form controls
     context.subscriptions.push(
         vscode.commands.registerCommand("chemical.runOptions", async () => {
-            const buildFile = getActiveBuildFilePath();
-            if (!buildFile) {
-                vscode.window.showErrorMessage('Open chemical.mod or build.lab first.');
-                return;
+            const config = vscode.workspace.getConfiguration('chemical');
+
+            const panel = vscode.window.createWebviewPanel(
+                'chemicalBuildOptions',
+                'Chemical Build Settings',
+                vscode.ViewColumn.Active,
+                { enableScripts: true }
+            );
+
+            function getSettings() {
+                return {
+                    mode: config.get<string>('build.mode', 'debug'),
+                    noCache: config.get<boolean>('build.noCache', false),
+                    pluginMode: config.get<string>('build.pluginMode', ''),
+                    recompilePlugins: config.get<boolean>('build.recompilePlugins', false),
+                    incremental: config.get<boolean>('build.incremental', false),
+                    customOutput: config.get<boolean>('build.customOutput', false),
+                    outputPath: config.get<string>('build.outputPath', '')
+                };
             }
 
-            const quickPick = vscode.window.createQuickPick();
-            quickPick.title = 'Chemical Build Options';
-            quickPick.placeholder = 'Select an option to configure';
-            quickPick.items = [
-                { label: '$(debug-start) Run Build', description: 'Compile and run with current settings' },
-                { label: '$(gear) Configure', description: 'Build without running' },
-                { label: '$(symbol-enum) Mode', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<string>('build.mode', 'debug')}` },
-                { label: '$(symbol-event) No Cache', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<boolean>('build.noCache', false) ? 'Enabled' : 'Disabled'}` },
-                { label: '$(wrench) Plugin Mode', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<string>('build.pluginMode', '') || 'default'}` },
-                { label: '$(sync) Recompile Plugins', description: `Current: ${vscode.workspace.getConfiguration('chemical').get<boolean>('build.recompilePlugins', true) ? 'Enabled' : 'Disabled'}` },
-                { label: '$(files) Output Path', description: 'Configure custom output executable path' },
-            ];
+            function renderHtml() {
+                const s = getSettings();
+                const modes = ['debug', 'release', 'debug_complete', 'debug_quick'];
+                const pluginModes = ['default', 'debug', 'release', 'debug_complete', 'debug_quick'];
 
-            quickPick.onDidAccept(async () => {
-                const selection = quickPick.selectedItems[0];
-                if (!selection) { quickPick.hide(); return; }
-                quickPick.hide();
+                panel.webview.html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+    body { font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-editor-foreground); background: var(--vscode-editor-background); padding: 12px 16px; margin: 0; }
+    .field { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 3px; font-weight: 500; }
+    .desc { font-size: 11px; color: var(--vscode-descriptionForeground); margin: 2px 0 0 0; }
+    select, input[type=text] { width: 100%; padding: 4px 6px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 2px; box-sizing: border-box; font-family: inherit; font-size: inherit; }
+    .cb-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .cb-row input { accent-color: var(--vscode-focusBorder); width: 15px; height: 15px; margin: 0; cursor: pointer; }
+    .cb-row label { margin: 0; cursor: pointer; font-weight: 400; }
+    .output-row { margin: 6px 0 0 23px; display: ${s.customOutput ? 'block' : 'none'}; }
+</style>
+</head>
+<body>
+    <div class="field">
+        <label for="mode">Mode</label>
+        <select id="mode" onchange="save('build.mode',this.value)">
+            ${modes.map(m => `<option value="${m}"${s.mode===m?' selected':''}>${m}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field">
+        <div class="cb-row">
+            <input type="checkbox" id="noCache" ${s.noCache?'checked':''} onchange="save('build.noCache',this.checked)">
+            <label for="noCache">No Cache</label>
+        </div>
+        <div class="desc">Enable --no-cache flag</div>
+    </div>
+    <div class="field">
+        <label for="pluginMode">Plugin Mode</label>
+        <select id="pluginMode" onchange="save('build.pluginMode',this.value==='default'?'':this.value)">
+            ${pluginModes.map(m => `<option value="${m}"${(m==='default'?'':s.pluginMode)===(m==='default'?'':m)?' selected':''}>${m}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field">
+        <div class="cb-row">
+            <input type="checkbox" id="recompilePlugins" ${s.recompilePlugins?'checked':''} onchange="save('build.recompilePlugins',this.checked)">
+            <label for="recompilePlugins">Recompile Plugins</label>
+        </div>
+        <div class="desc">Enable -frecompile-plugins flag</div>
+    </div>
+    <div class="field">
+        <div class="cb-row">
+            <input type="checkbox" id="incremental" ${s.incremental?'checked':''} onchange="save('build.incremental',this.checked)">
+            <label for="incremental">Incremental Compilation</label>
+        </div>
+        <div class="desc">Enable --incremental flag</div>
+    </div>
+    <div class="field">
+        <div class="cb-row">
+            <input type="checkbox" id="customOutput" ${s.customOutput?'checked':''} onchange="toggleOutput(this.checked)">
+            <label for="customOutput">Custom Output Path</label>
+        </div>
+        <div class="desc">Use custom output path instead of temporary file</div>
+        <div class="output-row" id="outputRow">
+            <input type="text" id="outputPath" placeholder="/path/to/output.exe" value="${s.outputPath}" onchange="save('build.outputPath',this.value)">
+        </div>
+    </div>
+<script>
+    const api = acquireVsCodeApi();
+    function save(k,v) { api.postMessage({type:'update',key:k,value:v}); }
+    function toggleOutput(checked) {
+        document.getElementById('outputRow').style.display = checked ? 'block' : 'none';
+        save('build.customOutput', checked);
+    }
+</script>
+</body>
+</html>`;
+            }
 
-                const config = vscode.workspace.getConfiguration('chemical');
-
-                switch (selection.label) {
-                    case '$(debug-start) Run Build':
-                        vscode.commands.executeCommand('chemical.runBuild');
-                        break;
-                    case '$(gear) Configure':
-                        vscode.commands.executeCommand('chemical.configure');
-                        break;
-                    case '$(symbol-enum) Mode': {
-                        const mode = await vscode.window.showQuickPick(
-                            ['debug', 'release', 'debug_complete', 'debug_quick'],
-                            { placeHolder: 'Select compilation mode' }
-                        );
-                        if (mode) await config.update('build.mode', mode, vscode.ConfigurationTarget.Workspace);
-                        break;
-                    }
-                    case '$(symbol-event) No Cache': {
-                        const current = config.get<boolean>('build.noCache', false);
-                        await config.update('build.noCache', !current, vscode.ConfigurationTarget.Workspace);
-                        break;
-                    }
-                    case '$(wrench) Plugin Mode': {
-                        const pm = await vscode.window.showQuickPick(
-                            ['default', 'debug', 'release', 'debug_complete', 'debug_quick'],
-                            { placeHolder: 'Select plugin compilation mode' }
-                        );
-                        if (pm) await config.update('build.pluginMode', pm === 'default' ? '' : pm, vscode.ConfigurationTarget.Workspace);
-                        break;
-                    }
-                    case '$(sync) Recompile Plugins': {
-                        const current = config.get<boolean>('build.recompilePlugins', true);
-                        await config.update('build.recompilePlugins', !current, vscode.ConfigurationTarget.Workspace);
-                        break;
-                    }
-                    case '$(files) Output Path': {
-                        const useCustom = await vscode.window.showQuickPick(
-                            ['Use temporary file', 'Use custom path'],
-                            { placeHolder: 'Select output configuration' }
-                        );
-                        if (!useCustom) break;
-                        if (useCustom === 'Use temporary file') {
-                            await config.update('build.customOutput', false, vscode.ConfigurationTarget.Workspace);
-                        } else {
-                            const outputPath = await vscode.window.showInputBox({
-                                prompt: 'Enter output executable path',
-                                placeHolder: '/path/to/output.exe'
-                            });
-                            if (outputPath) {
-                                await config.update('build.customOutput', true, vscode.ConfigurationTarget.Workspace);
-                                await config.update('build.outputPath', outputPath, vscode.ConfigurationTarget.Workspace);
-                            }
-                        }
-                        break;
-                    }
+            panel.webview.onDidReceiveMessage(async (msg) => {
+                if (msg.type === 'update') {
+                    await config.update(msg.key, msg.value, vscode.ConfigurationTarget.Workspace);
                 }
             });
 
-            quickPick.show();
+            renderHtml();
         })
     );
 

@@ -29,8 +29,10 @@ export function getBuildFlags(): string[] {
   if (noCache) flags.push('--no-cache');
   const pluginMode = vscode.workspace.getConfiguration('chemical').get<string>('build.pluginMode', '');
   if (pluginMode) flags.push('--plugin-mode', pluginMode);
-  const recompilePlugins = vscode.workspace.getConfiguration('chemical').get<boolean>('build.recompilePlugins', true);
+  const recompilePlugins = vscode.workspace.getConfiguration('chemical').get<boolean>('build.recompilePlugins', false);
   if (recompilePlugins) flags.push('-frecompile-plugins');
+  const incremental = vscode.workspace.getConfiguration('chemical').get<boolean>('build.incremental', false);
+  if (incremental) flags.push('--incremental');
   return flags;
 }
 
