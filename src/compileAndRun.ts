@@ -49,12 +49,38 @@ export function getOutputPath(): string {
 /**
  * Compile the given source file via terminal (configure - build only)
  */
+/**
+ * Build a terminal command string that works across shells (PowerShell, CMD, bash).
+ * PowerShell requires the `&` call operator when an executable path is quoted.
+ */
+export function buildTerminalCommand(execPath: string, args: string[]): string {
+  let execStr: string;
+  if (execPath.includes(' ')) {
+    // Path contains spaces — needs quoting
+    if (process.platform === 'win32') {
+      const shell = (vscode.env.shell || '').toLowerCase();
+      if (shell.endsWith('powershell.exe') || shell.endsWith('pwsh.exe')) {
+        execStr = `& "${execPath}"`; // PowerShell: & "path"
+      } else {
+        execStr = `"${execPath}"`; // CMD: "path"
+      }
+    } else {
+      execStr = `"${execPath}"`; // Unix shells: "path"
+    }
+  } else {
+    // No spaces — no quoting needed, works in all shells
+    execStr = execPath;
+  }
+  return `${execStr} ${args.join(' ')}`;
+}
+
 export function compileInTerminal(lspPath: string, sourcePath: string, terminal?: vscode.Terminal) {
   const term = terminal || vscode.window.createTerminal('Chemical Build');
   term.show(true);
   const flags = getBuildFlags();
   const outputPath = getOutputPath();
-  const cmd = `"${lspPath}" cc "${sourcePath}" -o "${outputPath}" ${flags.join(' ')}`;
+  const args = ['cc', `"${sourcePath}"`, '-o', `"${outputPath}"`, ...flags];
+  const cmd = buildTerminalCommand(lspPath, args);
   term.sendText(cmd);
 }
 
@@ -66,7 +92,8 @@ export function runInTerminal(lspPath: string, sourcePath: string, terminal?: vs
   term.show(true);
   const flags = getBuildFlags();
   const outputPath = getOutputPath();
-  const cmd = `"${lspPath}" run "${sourcePath}" -o "${outputPath}" ${flags.join(' ')}`;
+  const args = ['run', `"${sourcePath}"`, '-o', `"${outputPath}"`, ...flags];
+  const cmd = buildTerminalCommand(lspPath, args);
   term.sendText(cmd);
 }
 

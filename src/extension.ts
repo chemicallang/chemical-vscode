@@ -13,7 +13,7 @@ import * as extract from "extract-zip"
 import * as https from "https"
 import * as http from "http"
 import { compareVersions, parseVersion } from "./version";
-import { compileAndRunCommand, getConfiguredLspPath, registerChemicalTasks, getBuildFlags, getOutputPath } from "./compileAndRun";
+import { compileAndRunCommand, getConfiguredLspPath, registerChemicalTasks, getBuildFlags, getOutputPath, buildTerminalCommand } from "./compileAndRun";
 
 let lc: LanguageClient;
 
@@ -447,7 +447,7 @@ async function downloadLspPackage(context: vscode.ExtensionContext): Promise<str
     const marker = path.join(extractedPath, '.ready');
     return downloadAndExtractLsp("Downloading Chemical LSP...", downloadUrl, zipPath, extractedPath, marker).then(() => {
         fs.rmSync(zipPath)
-        return path.join(extractedPath, assetName);
+        return extractedPath;
     })
 
 }
@@ -743,7 +743,7 @@ export function activate(context: ExtensionContext) {
         const args = [...extraArgs, ...flags];
         const term = vscode.window.createTerminal(`Chemical ${description}`);
         term.show(true);
-        const cmd = `"${lspPath}" ${args.join(' ')}`;
+        const cmd = buildTerminalCommand(lspPath, args);
         term.sendText(cmd);
         return term;
     }
